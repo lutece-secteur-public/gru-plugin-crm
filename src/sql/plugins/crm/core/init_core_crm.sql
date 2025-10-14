@@ -1,3 +1,6 @@
+-- liquibase formatted sql
+-- changeset crm:init_core_crm.sql
+-- preconditions onFail:MARK_RAN onError:WARN
 
 --
 -- Dumping data for table core_admin_right

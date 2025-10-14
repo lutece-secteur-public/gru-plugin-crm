@@ -1,3 +1,6 @@
+-- liquibase formatted sql
+-- changeset crm:create_db_crm.sql
+-- preconditions onFail:MARK_RAN onError:WARN
 --
 -- Structure for table crm_demand_type
 --

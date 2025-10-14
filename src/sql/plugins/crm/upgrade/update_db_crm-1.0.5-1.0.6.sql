@@ -1,3 +1,6 @@
+-- liquibase formatted sql
+-- changeset crm:update_db_crm-1.0.5-1.0.6.sql
+-- preconditions onFail:MARK_RAN onError:WARN
 --
 -- Table structure for table crm_demand_type_portlet
 --

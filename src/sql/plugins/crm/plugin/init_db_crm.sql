@@ -1,3 +1,6 @@
+-- liquibase formatted sql
+-- changeset crm:init_db_crm.sql
+-- preconditions onFail:MARK_RAN onError:WARN
 --
 -- Init table crm_status_crm
 --

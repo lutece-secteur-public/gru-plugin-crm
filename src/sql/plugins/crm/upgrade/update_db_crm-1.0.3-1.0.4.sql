@@ -1,3 +1,6 @@
+-- liquibase formatted sql
+-- changeset crm:update_db_crm-1.0.3-1.0.4.sql
+-- preconditions onFail:MARK_RAN onError:WARN
 --
 -- CRM-11 : Add the possibility to anonymize the CRM user
 --

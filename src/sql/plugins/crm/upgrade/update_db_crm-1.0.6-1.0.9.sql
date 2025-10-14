@@ -1,3 +1,6 @@
+-- liquibase formatted sql
+-- changeset crm:update_db_crm-1.0.6-1.0.9.sql
+-- preconditions onFail:MARK_RAN onError:WARN
 
 
 --
