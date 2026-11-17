@@ -71,7 +71,8 @@ import fr.paris.lutece.util.ReferenceList;
 
 import org.apache.commons.beanutils.BeanUtils;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -85,7 +86,7 @@ import java.util.List;
 public class ListUtils
 {
     private static final String PROPERTY_LIST_SEPARATOR = ";";
-    private static final Logger LOGGER = Logger.getLogger( ListUtils.class );
+    private static final Logger LOGGER = LogManager.getLogger( ListUtils.class );
 
     /**
      *
@@ -119,19 +120,19 @@ public class ListUtils
         }
         catch( IllegalAccessException e )
         {
-            LOGGER.warn( "Erreur lors de la création d'une liste pour combo : " + e.getMessage( ), e );
+            LOGGER.warn( "Erreur lors de la création d'une liste pour combo : {}", e.getMessage( ), e );
         }
         catch( InvocationTargetException e )
         {
-            LOGGER.warn( "Erreur lors de la création d'une liste pour combo : " + e.getMessage( ), e );
+            LOGGER.warn( "Erreur lors de la création d'une liste pour combo : {}", e.getMessage( ), e );
         }
         catch( NoSuchMethodException e )
         {
-            LOGGER.warn( "Erreur lors de la création d'une liste pour combo : " + e.getMessage( ), e );
+            LOGGER.warn( "Erreur lors de la création d'une liste pour combo : {}", e.getMessage( ), e );
         }
         catch( Exception e )
         {
-            LOGGER.warn( "Erreur lors de la création d'une liste pour combo : " + e.getMessage( ), e );
+            LOGGER.warn( "Erreur lors de la création d'une liste pour combo : {}", e.getMessage( ), e );
         }
 
         return referenceList;

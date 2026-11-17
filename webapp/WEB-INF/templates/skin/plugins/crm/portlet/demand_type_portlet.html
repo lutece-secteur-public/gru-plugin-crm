@@ -1,0 +1,42 @@
+<@cTpl>
+<@cSection class='portlet portlet-crm-demand-type ${device_class!}' id='portlet_${portlet_id?c}'>
+<#if portlet_name??>
+	<@cTitle level=2 class='portlet-header'>${portlet_name}</@cTitle>
+</#if>
+<@cBlock class='portlet-content'>
+<#list categories_list as category>
+	<#assign demand_types = map_demand_types_list[category.idCategory?c]![] />
+	<@cBlock class='crm-category mb-3'>
+		<#if category.name?trim?has_content>
+			<@cTitle level=3>${category.name}</@cTitle>
+		</#if>
+		<@cBlock type='ul' class='list-unstyled'>
+		<#list demand_types as demand_type>
+			<@cBlock type='li' class='mb-2'>
+				<@cLink href='jsp/site/plugins/crm/DoOpenDemandType.jsp?id_demand_type=${demand_type.idDemandType}' label='${demand_type.label}' target='${demand_type.target}' class='label-demand' />
+				<#if demand_type.needAuthentication>
+					<@cBadge label='#i18n{crm.crm.labelNeedAuthentication}' class='bg-warning text-dark ms-2' />
+				</#if>
+				<#if demand_type.needValidation>
+					<@cBadge label='#i18n{crm.crm.labelNeedValidation}' class='bg-success ms-2' />
+				</#if>
+				<#if demand_type.urlInfo?has_content>
+					<br /><em><@cLink href='${demand_type.urlInfo}' label='#i18n{crm.crm.labelInfo}' /></em>
+				</#if>
+				<#if demand_type.urlContact?has_content>
+					<br /><em><@cLink href='${demand_type.urlContact}' label='#i18n{crm.crm.labelContact}' /></em>
+				</#if>
+				<#if demand_type.dateBegin??>
+					<br />#i18n{crm.crm.labelDateBegin} : ${demand_type.dateBegin?date}
+				</#if>
+				<#if demand_type.dateEnd??>
+					<br />#i18n{crm.crm.labelDateEnd} : ${demand_type.dateEnd?date}
+				</#if>
+			</@cBlock>
+		</#list>
+		</@cBlock>
+	</@cBlock>
+</#list>
+</@cBlock>
+</@cSection>
+</@cTpl>

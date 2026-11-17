@@ -46,6 +46,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import jakarta.enterprise.inject.Vetoed;
+
+@Vetoed
 public class MokeDemandService extends DemandService
 {
     private static final int ID_DEMAND1 = 1;

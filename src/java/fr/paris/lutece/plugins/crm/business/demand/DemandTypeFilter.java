@@ -37,6 +37,7 @@ import fr.paris.lutece.plugins.crm.util.OperatorEnum;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -44,8 +45,9 @@ import java.util.Date;
  * DemandTypeFilter
  *
  */
-public class DemandTypeFilter
+public class DemandTypeFilter implements Serializable
 {
+    private static final long serialVersionUID = 1L;
     private static final int ALL_INT = -1;
     private boolean _bIsWideSearch;
     private String _strLabel;

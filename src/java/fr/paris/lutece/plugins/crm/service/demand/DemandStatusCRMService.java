@@ -35,19 +35,21 @@ package fr.paris.lutece.plugins.crm.service.demand;
 
 import fr.paris.lutece.plugins.crm.business.demand.DemandStatusCRM;
 import fr.paris.lutece.plugins.crm.business.demand.DemandStatusCRMHome;
-import fr.paris.lutece.portal.service.spring.SpringContextService;
 
 import java.util.List;
 import java.util.Locale;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.spi.CDI;
 
 /**
  *
  * DemandStatusCRMService
  *
  */
+@ApplicationScoped
 public class DemandStatusCRMService
 {
-    private static final String BEAN_CRM_DEMANDSTATUSCRMSERVICE = "crm.demandStatusCRMService";
     private List<DemandStatusCRM> _listStatusCRM;
 
     /**
@@ -61,10 +63,12 @@ public class DemandStatusCRMService
      * Get the instance of {@link DemandStatusCRMService}
      * 
      * @return the instance of {@link DemandStatusCRMService}
+     * @deprecated since 2.0.0, inject the bean instead of this static accessor
      */
+    @Deprecated( since = "2.0.0", forRemoval = true )
     public static DemandStatusCRMService getService( )
     {
-        return SpringContextService.getBean( BEAN_CRM_DEMANDSTATUSCRMSERVICE );
+        return CDI.current( ).select( DemandStatusCRMService.class ).get( );
     }
 
     /**

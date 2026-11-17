@@ -1,7 +1,4 @@
-<script type="text/javascript" src="js/jquery/plugins/ui/datepicker/ui.datepicker.js" ></script>
-<script type="text/javascript" src="js/jquery/plugins/ui/datepicker/ui.datepicker-${locale.language}.js" ></script>
-<link rel="stylesheet" type="text/css" href="js/jquery/ui/datepicker/ui.datepicker.css" />
-
+<@cTpl>
 <#-- Get the demand_type from a given id demand type -->
 <#function getDemandType demand_types_list id_demand_type>
 	<#if demand_types_list?? && demand_types_list?has_content>
@@ -11,211 +8,143 @@
 			</#if>
 		</#list>
 	</#if>
+	<#return ''>
 </#function>
-
-<div class="row">
-	<div class="col-sm-9 col-md-9">
-		<div class="portlet">
-			<div class="well">
-				<#if crm_user?has_content>
-					<div class="row">
-						<h2>#i18n{crm.crm.labelDemandsList}</h2>
-					</div>
-					<div class="row">
-					
-						<!-- Filter on "type demande", "date de modification", "notification" -->
-							<div class="well">
-								<form class="form-horizontal" action="jsp/site/Portal.jsp?page=crm" method="post" name="form">
-									<div class="form-group">
-										<label class="control-label col-sm-2 col-md-2" for="filter_type_demand">#i18n{crm.crm.filterTypeDemandLabel} : </label>
-										<div class="col-sm-10 col-md-10">
-											<@combo name="demandType" default_value="${(filter.idDemandType)!}" items=demandTypesRefList />
-										</div>
-									</div>
-									<div class="form-group">
-										<label class="control-label col-sm-2 col-md-2" for="filter_modification_date">#i18n{crm.crm.filterModificationDateLabel} : </label>
-										<div class="col-sm-4 col-md-4">
-											<input type="text" class="form-control input-sm" value="${modificationDate!}" name="modificationDate" id="filter_modification_date" size="7" maxlength="10" />
-										</div>
-									</div>
-									<div class="form-group">
-										<label class="control-label col-sm-2 col-md-2" for="filter_notification">#i18n{crm.crm.filterNotificationLabel} : </label>
-										<div class="col-sm-4 col-md-4">
-											<input type="text" class="form-control input-sm" value="${(filter.notification)!}" name="notification" id="filter_notification"/ size="40" maxlength="255">
-											<span class="help-block">#i18n{crm.crm.filterNotificationLabelComment}</span>
-										</div>
-									</div>
-									<div class="form-actions col-sm-offset-2 col-md-offset-2">
-										<button type="submit" value="#i18n{crm.crm.buttonSearch}" name="search" class="btn btn-primary btn-sm" >
-									   		#i18n{crm.crm.buttonSearch}
-									   	</button>
-									   	<a class="btn btn-primary btn-sm" href="jsp/site/Portal.jsp?page=crm" >
-									   		#i18n{crm.crm.buttonReinitialization}
-									   	</a>
-								   	</div>
-								</form>
-							</div>
-						
-						<#list status_crm_list as status_crm>
-							<!-- Doesn't display the draft bloc if the checkbox is not checked in the parameters -->
-							<#if (status_crm.idStatusCRM != 0 || (status_crm.idStatusCRM == 0 && bDisplayDraft = true ))>
-								<#assign demands_list = map_demands_list[""+status_crm.idStatusCRM]>
-								<#if demands_list?has_content>
-									<div class="well">
-										<@paginationAdmin paginator=map_paginator[""+status_crm.idStatusCRM] combo=1 nb_items_per_page=map_nb_items_per_page[""+status_crm.idStatusCRM] />
-										<table class="table">
-											<tr>
-												<th>
-													${status_crm.label}
-												</th>
-												<th>
-													#i18n{crm.crm.columnDate}
-													<@sort jsp_url="jsp/site/Portal.jsp?page=crm&session=true&id_status=${status_crm.idStatusCRM}" attribute="dateModification" />
-												</th>
-												<th>
-													#i18n{crm.crm.columnStatus}
-												</th>
+<@cContainer>
+<@cRow>
+	<@cCol cols='md-9'>
+		<#if crm_user?has_content>
+			<@cTitle level=2>#i18n{crm.crm.labelDemandsList}</@cTitle>
+			<#assign selectedDemandType = ((filter.idDemandType)!'')?string />
+			<@cForm action='jsp/site/Portal.jsp?page=crm' method='post' name='form'>
+				<@cField for='demandType' label='#i18n{crm.crm.filterTypeDemandLabel}'>
+					<@cSelect name='demandType' id='demandType'>
+						<#list demandTypesRefList as item>
+							<@cOption label='${item.name}' value='${item.code}' selected=(selectedDemandType == item.code) />
+						</#list>
+					</@cSelect>
+				</@cField>
+				<@cInputDate name='modificationDate' id='filter_modification_date' label='#i18n{crm.crm.filterModificationDateLabel}' type='datepicker' options={ 'format' : 'dd/mm/yyyy' } value='${modificationDate!}' />
+				<@cField for='filter_notification' label='#i18n{crm.crm.filterNotificationLabel}'>
+					<@cInput type='text' name='notification' id='filter_notification' value='${(filter.notification)!}' maxlength=255 helpMsg='#i18n{crm.crm.filterNotificationLabelComment}' />
+				</@cField>
+				<@cRow>
+					<@cCol>
+						<@cBtn type='submit' label='#i18n{crm.crm.buttonSearch}' params={'name': 'search'} />
+						<@cBtn href='jsp/site/Portal.jsp?page=crm' class='secondary' label='#i18n{crm.crm.buttonReinitialization}' />
+					</@cCol>
+				</@cRow>
+			</@cForm>
+			<#list status_crm_list as status_crm>
+				<#-- Doesn't display the draft bloc if the checkbox is not checked in the parameters -->
+				<#if (status_crm.idStatusCRM != 0 || (status_crm.idStatusCRM == 0 && bDisplayDraft = true ))>
+					<#assign statusId = "" + status_crm.idStatusCRM />
+					<#assign demands_list = map_demands_list[statusId]![] />
+					<#if demands_list?has_content>
+						<#assign sortBase = 'jsp/site/Portal.jsp?page=crm&session=true&id_status=' + statusId + '&sorted_attribute_name=' />
+						<@cBlock class='mb-4'>
+							<@cPagination paginator=map_paginator[statusId] />
+							<@cTable id='demands_${statusId}' caption='${status_crm.label}'>
+								<@cThead>
+									<@cTr>
+										<@cTh>${status_crm.label}</@cTh>
+										<@cTh>
+											#i18n{crm.crm.columnDate}
+											<@cLink href='${sortBase}dateModification&asc_sort=true' label='' title='#i18n{portal.util.sort.date.asc}'><@cIcon name='sort-ascending' /></@cLink>
+											<@cLink href='${sortBase}dateModification&asc_sort=false' label='' title='#i18n{portal.util.sort.date.desc}'><@cIcon name='sort-descending' /></@cLink>
+										</@cTh>
+										<@cTh>#i18n{crm.crm.columnStatus}</@cTh>
+										<#if status_crm.idStatusCRM = 0>
+											<@cTh>#i18n{crm.crm.columnActions}</@cTh>
+										</#if>
+										<@cTh>
+											#i18n{crm.crm.columnNotification}
+											<@cLink href='${sortBase}unreadNotification&asc_sort=true' label='' title='#i18n{portal.util.sort.number.asc}'><@cIcon name='sort-ascending' /></@cLink>
+											<@cLink href='${sortBase}unreadNotification&asc_sort=false' label='' title='#i18n{portal.util.sort.number.desc}'><@cIcon name='sort-descending' /></@cLink>
+										</@cTh>
+									</@cTr>
+								</@cThead>
+								<@cTbody>
+									<#list demands_list as demand>
+										<#assign demand_type = getDemandType( demand_types_list, demand.idDemandType ) />
+										<#if demand_type?has_content>
+											<@cTr>
+												<@cTd>${demand_type.label!}</@cTd>
+												<@cTd>${demand.dateModification?datetime?string.short}</@cTd>
+												<@cTd>${demand.statusText!}</@cTd>
 												<#if status_crm.idStatusCRM = 0>
-													<th>
-														#i18n{crm.crm.columnActions}
-													</th>
+													<@cTd>
+														<#if demand_type.open>
+															<@cBtn href='jsp/site/plugins/crm/DoEditDemand.jsp?id_demand=${demand.idDemand}' class='primary btn-sm' label='#i18n{crm.crm.buttonModify}' params={'target': demand_type.target?string}><@cIcon name='edit' class='me-1' /></@cBtn>
+														</#if>
+														<@cBtn href='jsp/site/Portal.jsp?page=crm&action=remove_demand&id_demand=${demand.idDemand}' class='danger btn-sm' label='#i18n{crm.crm.buttonDelete}'><@cIcon name='trash' class='me-1' /></@cBtn>
+													</@cTd>
 												</#if>
-												<th>
-													#i18n{crm.crm.columnNotification}
-													<@sort jsp_url="jsp/site/Portal.jsp?page=crm&session=true&id_status=${status_crm.idStatusCRM}" attribute="unreadNotification" />
-												</th>									
-											</tr>
-											<#list demands_list as demand>
-												<#assign demand_type = getDemandType( demand_types_list, demand.idDemandType )>
-												<#if demand_type??>
-													<tr>
-														<td>
-															${demand_type.label}
-														</td>
-														<td>
-															${demand.dateModification?string.short}
-														</td>
-														<td>
-															${demand.statusText}
-														</td>
-															<#if status_crm.idStatusCRM = 0>
-																<td>
-																	<#if demand_type.isOpen(  )>
-																		<a class="btn btn-primary btn-sm" href="jsp/site/plugins/crm/DoEditDemand.jsp?id_demand=${demand.idDemand}" target="${demand_type.target}" title="#i18n{crm.crm.buttonModify}">
-																			<i class="glyphicon glyphicon-edit"></i>
-																		</a>
-																	</#if>
-																	<a class="btn btn-danger btn-sm" href="jsp/site/Portal.jsp?page=crm&amp;action=remove_demand&amp;id_demand=${demand.idDemand}" title="#i18n{crm.crm.buttonDelete}">
-																		<i class="glyphicon glyphicon-trash"></i>
-																	</a>
-																</td>
-															</#if>
-														<td>
-															<#if ( demand.getNumberNotifications(  ) > 0 )>
-																<a class="btn btn-primary btn-sm" href="jsp/site/Portal.jsp?page=crm&amp;action=manage_notifications&amp;id_demand=${demand.idDemand}"title="#i18n{crm.crm.labelMail}">
-																	<i class="glyphicon glyphicon-envelope"></i>
-																</a>
-																<#if ( demand.getNumberUnreadNotifications(  ) > 0 )>
-																	<span class="alert">
-																		${demand.numberUnreadNotifications}
-																	</span>
-																</#if>
-															</#if> 
-														</td>
-													</tr>
-												</#if>
-											</#list>
-										</table>
-										<@paginationAdmin paginator=map_paginator[""+status_crm.idStatusCRM] nb_items_per_page=map_nb_items_per_page[""+status_crm.idStatusCRM] />
-									</div>
-								</#if>
-							</#if>
-						</#list>
-					</div>
-			 </#if>
-		</div>
-	</div>
-</div>
-
-	<div class="col-sm-3 col-md-3">
-		<div class="portlet">
-			<div class="well">
-				<#if crm_user?has_content>
-					<div class="row">
-						${crm_user.getUserAttributeValue("user.name.given")} ${crm_user.getUserAttributeValue("user.name.family")}
-					</div>
-					<div class="row">
-						<a href="jsp/site/Portal.jsp?page=crm&amp;action=modify_crm_user">
-							#i18n{crm.crm.labelMyAccount}
-						</a>
-					</div>
-				<#else>
-					 
-					<a href="${url_dologin}">
-						Authentifiez Vous
-					</a>
-						
-				</#if>	
-			</div>
-		</div>
-		<#if categories_list?has_content>
-			<div class="portlet">
-				<div class="well">
-					<div class="row">
-						#i18n{crm.crm.labelDemandTypesList}
-					</div>
-					<div class="row">
-						<#list categories_list as category>
-							<#assign demand_types = map_demand_types_list[category.code]>
-							<#if demand_types?has_content>
-								<fieldset>
-									<#-- Category = display the legend -->
-									<#if category.code != "0">
-										<legend>${category.name}</legend>
-									</#if>
-									<ul>
-										<#list demand_types as demand_type>
-											<li>
-												<a href="jsp/site/plugins/crm/DoOpenDemandType.jsp?id_demand_type=${demand_type.idDemandType}" target="${demand_type.target}">
-													${demand_type.label}
-												</a>
-												<#if demand_type.urlInfo?has_content>
-													<br />
-													<em>
-														<a href="${demand_type.urlInfo}">
-															#i18n{crm.crm.labelInfo}
-														</a>
-													</em>
-												</#if>
-												<#if demand_type.urlContact?has_content>
-													<br />
-													<em>
-														<a href="${demand_type.urlContact}">
-															#i18n{crm.crm.labelContact}
-														</a>
-													</em>
-												</#if>
-												<#if demand_type.dateBegin??>
-													<br />
-													#i18n{crm.crm.labelDateBegin} : ${demand_type.dateBegin?date}
-												</#if>
-												<#if demand_type.dateEnd??>
-													<br />
-													#i18n{crm.crm.labelDateEnd} : ${demand_type.dateEnd?date}
-												</#if>
-											</li>
-										</#list>
-									</ul>
-								</fieldset>
-							</#if>
-						</#list>
-					</div>
-				</div>
-			</div>
+												<@cTd>
+													<#if ( demand.numberNotifications gt 0 )>
+														<@cBtn href='jsp/site/Portal.jsp?page=crm&action=manage_notifications&id_demand=${demand.idDemand}' class='primary btn-sm' label='#i18n{crm.crm.labelMail}'><@cIcon name='mail' class='me-1' /></@cBtn>
+														<#if ( demand.numberUnreadNotifications gt 0 )>
+															<@cBadge label='${demand.numberUnreadNotifications}' class='bg-danger' />
+														</#if>
+													</#if>
+												</@cTd>
+											</@cTr>
+										</#if>
+									</#list>
+								</@cTbody>
+							</@cTable>
+							<@cPagination paginator=map_paginator[statusId] />
+						</@cBlock>
+					</#if>
+				</#if>
+			</#list>
 		</#if>
-	</div>
-</div>
-
-<script src="js/jquery/plugins/ui/jquery-ui-1.9.2.custom.min.js"></script>
-<script src="js/jquery/plugins/ui/ui.datepicker-fr.js"></script>
-<@getDatePicker idField="filter_modification_date" language=locale.language />
+	</@cCol>
+	<@cCol cols='md-3'>
+		<@cBlock class='mb-4'>
+			<#if crm_user?has_content>
+				<@cText>${(crm_user.getUserAttributeValue("user.name.given"))!} ${(crm_user.getUserAttributeValue("user.name.family"))!}</@cText>
+				<@cLink href='jsp/site/Portal.jsp?page=crm&action=modify_crm_user' label='#i18n{crm.crm.labelMyAccount}' />
+			<#else>
+				<@cLink href='${url_dologin}' label='#i18n{crm.crm.labelLogin}' />
+			</#if>
+		</@cBlock>
+		<#if categories_list?has_content>
+			<@cBlock>
+				<@cTitle level=3>#i18n{crm.crm.labelDemandTypesList}</@cTitle>
+				<#list categories_list as category>
+					<#assign demand_types = map_demand_types_list[category.code]![] />
+					<#if demand_types?has_content>
+						<@cBlock class='mb-3'>
+							<#-- Category = display the legend -->
+							<#if category.code != "0">
+								<@cTitle level=4>${category.name}</@cTitle>
+							</#if>
+							<@chList class='list-unstyled'>
+								<#list demand_types as demand_type>
+									<@chItem class='mb-2'>
+										<@cLink href='jsp/site/plugins/crm/DoOpenDemandType.jsp?id_demand_type=${demand_type.idDemandType}' label='${demand_type.label}' target='${demand_type.target}' />
+										<#if demand_type.urlInfo?has_content>
+											<@cBlock><@cInline class='fst-italic'><@cLink href='${demand_type.urlInfo}' label='#i18n{crm.crm.labelInfo}' /></@cInline></@cBlock>
+										</#if>
+										<#if demand_type.urlContact?has_content>
+											<@cBlock><@cInline class='fst-italic'><@cLink href='${demand_type.urlContact}' label='#i18n{crm.crm.labelContact}' /></@cInline></@cBlock>
+										</#if>
+										<#if demand_type.dateBegin??>
+											<@cBlock>#i18n{crm.crm.labelDateBegin} : ${demand_type.dateBegin?date}</@cBlock>
+										</#if>
+										<#if demand_type.dateEnd??>
+											<@cBlock>#i18n{crm.crm.labelDateEnd} : ${demand_type.dateEnd?date}</@cBlock>
+										</#if>
+									</@chItem>
+								</#list>
+							</@chList>
+						</@cBlock>
+					</#if>
+				</#list>
+			</@cBlock>
+		</#if>
+	</@cCol>
+</@cRow>
+</@cContainer>
+</@cTpl>

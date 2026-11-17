@@ -33,8 +33,7 @@
  */
 package fr.paris.lutece.plugins.crm.service.category;
 
-import fr.paris.lutece.plugins.crm.service.CRMPlugin;
-import fr.paris.lutece.portal.service.spring.SpringContextService;
+import fr.paris.lutece.portal.service.util.CdiHelper;
 import fr.paris.lutece.portal.service.util.RemovalListenerService;
 
 /**
@@ -44,7 +43,7 @@ import fr.paris.lutece.portal.service.util.RemovalListenerService;
  */
 public final class CategoryRemovalListenerService
 {
-    private static final String BEAN_CRM_CATEGORY_REMOVAL_SERVICE = "crm.categoryRemovalService";
+    public static final String BEAN_NAME = "crm.categoryRemovalService";
 
     /**
      * Private constructor
@@ -54,12 +53,12 @@ public final class CategoryRemovalListenerService
     }
 
     /**
-     * Returns the removal service
+     * Get the removal listener service of the categories
      * 
-     * @return The removal service
+     * @return the removal listener service
      */
     public static RemovalListenerService getService( )
     {
-        return (RemovalListenerService) SpringContextService.getPluginBean( CRMPlugin.PLUGIN_NAME, BEAN_CRM_CATEGORY_REMOVAL_SERVICE );
+        return CdiHelper.getReference( RemovalListenerService.class, BEAN_NAME );
     }
 }

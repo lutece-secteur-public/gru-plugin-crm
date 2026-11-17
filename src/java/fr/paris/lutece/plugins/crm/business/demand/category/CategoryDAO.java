@@ -38,12 +38,14 @@ import fr.paris.lutece.util.sql.DAOUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import jakarta.enterprise.context.ApplicationScoped;
 
 /**
  *
  * This class provides Data Access methods for Category objects
  *
  */
+@ApplicationScoped
 public final class CategoryDAO implements ICategoryDAO
 {
     // SQL QUERIES

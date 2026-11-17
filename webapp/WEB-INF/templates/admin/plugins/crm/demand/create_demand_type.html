@@ -1,84 +1,81 @@
-<#macro comboOrder max_order current_order>
-	<select name="order" id="order" class="form-select">
-		<#list 1..max_order as order>
-			<#if order = current_order>
-				<option value="${order}" selected="selected">${order}</option>
-			<#else>
-				<option value="${order}">${order}</option>
+<@pageContainer>
+	<@pageColumn>
+		<@pageHeader title='#i18n{crm.create_demand_type.pageTitle}'>
+			<@aButton href='jsp/admin/plugins/crm/ManageDemandTypes.jsp' buttonIcon='arrow-left' title='#i18n{portal.util.labelBack}' color='light' />
+		</@pageHeader>
+		<@messages errors=errors![] />
+		<@tform method='post' name='create_demand_type' id='create_demand_type' action='jsp/admin/plugins/crm/ManageDemandTypes.jsp' boxed=true>
+			<@input type='hidden' name='action' value='createDemandType' />
+			<@formGroup labelFor='demand_type_label' labelKey='#i18n{crm.create_demand_type.labelLabel}' mandatory=true>
+				<@input type='text' name='demand_type_label' id='demand_type_label' maxlength=255 value='' mandatory=true />
+			</@formGroup>
+			<@formGroup labelFor='url_resource' labelKey='#i18n{crm.create_demand_type.labelUrlResource}' mandatory=true>
+				<@input type='text' name='url_resource' id='url_resource' maxlength=255 value='' mandatory=true />
+			</@formGroup>
+			<@formGroup labelFor='url_info' labelKey='#i18n{crm.create_demand_type.labelUrlInfo}'>
+				<@input type='text' name='url_info' id='url_info' maxlength=255 value='' />
+			</@formGroup>
+			<@formGroup labelFor='url_contact' labelKey='#i18n{crm.create_demand_type.labelUrlContact}'>
+				<@input type='text' name='url_contact' id='url_contact' maxlength=255 value='' />
+			</@formGroup>
+			<#assign orders_list = [] />
+			<#list 1..max_order as order>
+				<#assign orders_list = orders_list + [ { "code" : order?string, "name" : order?string } ] />
+			</#list>
+			<@formGroup labelFor='order' labelKey='#i18n{crm.modify_demand_type.labelOrder}'>
+				<@select name='order' id='order' items=orders_list default_value='1' />
+			</@formGroup>
+			<@formGroup labelFor='category_id_category' labelKey='#i18n{crm.modify_demand_type.labelCategory}'>
+				<@select name='category_id_category' id='category_id_category' default_value='0' items=categories_list />
+			</@formGroup>
+			<@formGroup labelFor='date_begin' labelKey='#i18n{crm.manage_demand_types.columnDateBegin}'>
+				<@inputGroup>
+					<@input type='date' name='date_begin' id='date_begin' value='' format='d/m/Y' />
+					<@inputGroupItem type='text'>
+						<@icon style='calendar' />
+					</@inputGroupItem>
+				</@inputGroup>
+			</@formGroup>
+			<@formGroup labelFor='date_end' labelKey='#i18n{crm.manage_demand_types.columnDateEnd}'>
+				<@inputGroup>
+					<@input type='date' name='date_end' id='date_end' value='' format='d/m/Y' />
+					<@inputGroupItem type='text'>
+						<@icon style='calendar' />
+					</@inputGroupItem>
+				</@inputGroup>
+			</@formGroup>
+			<@formGroup labelFor='workgroup_key' labelKey='#i18n{crm.create_demand_type.labelWorkgroup}' helpKey='#i18n{crm.create_demand_type.labelWorkgroupComment}'>
+				<@select name='workgroup_key' id='workgroup_key' default_value='all' items=user_workgroup_list />
+			</@formGroup>
+			<#if role_list??>
+				<@formGroup labelFor='role_key' labelKey='#i18n{crm.create_demand_type.labelRole}' helpKey='#i18n{crm.create_demand_type.labelRoleComment}'>
+					<@select name='role_key' id='role_key' default_value='none' items=role_list />
+				</@formGroup>
 			</#if>
-		</#list> 
-	</select>
-</#macro>
-<@row>
-	<@columns>
-		<@box>
-			<@boxHeader title='#i18n{crm.create_demand_type.pageTitle}' />
-			<@boxBody>		
-				<@tform method='post' name='create_demand_type' id='create_demand_type' action='jsp/admin/plugins/crm/DoCreateDemandType.jsp'>
-					<@formGroup labelFor='demand_type_label' labelKey='#i18n{crm.create_demand_type.labelLabel}' mandatory=true>
-						<@input type='text' name='demand_type_label' maxlength=255 />
-					</@formGroup>
-					<@formGroup labelFor='url_resource' labelKey='#i18n{crm.create_demand_type.labelUrlResource}' mandatory=true>
-						<@input type='text' name='url_resource' maxlength=255 />
-					</@formGroup>
-					<@formGroup labelFor='url_info' labelKey='#i18n{crm.create_demand_type.labelUrlInfo}' >
-						<@input type='text' name='url_info' maxlength=255 />
-					</@formGroup>
-					<@formGroup labelFor='url_contact' labelKey='#i18n{crm.create_demand_type.labelUrlContact}' >
-						<@input type='text' name='url_contact' maxlength=255 />
-					</@formGroup>
-					<@formGroup labelFor='order' labelKey='#i18n{crm.modify_demand_type.labelOrder}' >
-						<@comboOrder max_order=max_order current_order=1 />
-					</@formGroup>
-					<@formGroup labelFor='category_id_category' labelKey='#i18n{crm.modify_demand_type.labelCategory}' >
-						<@select name="category_id_category" default_value='0' items=categories_list />
-					</@formGroup>
-					<@formGroup labelFor='date_begin' labelKey='#i18n{crm.manage_demand_types.columnDateBegin}'>
-						<@inputGroup>
-							<@input type='date' name='date_begin' id='date_begin' value='' format='d/m/Y' />
-							<@inputGroupItem type='text'>
-								<@icon style='calendar' />
-							</@inputGroupItem>
-						</@inputGroup>
-					</@formGroup>
-					<@formGroup labelFor='date_end' labelKey='#i18n{crm.manage_demand_types.columnDateEnd}'>
-						<@inputGroup>
-							<@input type='date' name='date_end' id='date_end' value='' format='d/m/Y' />
-							<@inputGroupItem type='text'>
-								<@icon style='calendar' />
-							</@inputGroupItem>
-						</@inputGroup>
-					</@formGroup>
-					<@formGroup labelFor='workgroup_key' labelKey='#i18n{crm.create_demand_type.labelWorkgroup}' helpKey='#i18n{crm.create_demand_type.labelWorkgroupComment}'>
-						<@select name='workgroup_key' default_value='all'  items=user_workgroup_list />
-					</@formGroup>
-					<#if role_list??>
-						<@formGroup labelFor='role_key' labelKey='#i18n{crm.create_demand_type.labelRole}' helpKey='#i18n{crm.create_demand_type.labelRoleComment}'>
-							<@select name='role_key' default_value='none'  items=role_list />
-						</@formGroup>
-					</#if>
-					<@formGroup labelFor='target' labelKey='#i18n{crm.create_demand_type.labelTarget}' helpKey='#i18n{crm.create_demand_type.labelTargetComment}'>
-						<@select name='target' default_value='0'  items=targets_list />
-					</@formGroup>
-					<@formGroup labelFor='url_delete' labelKey='#i18n{crm.create_demand_type.labelUrlDelete}' helpKey='#i18n{crm.create_demand_type.labelUrlDeleteComment}'>
-						<@inputGroup>
-							<@input type='text' name='url_delete' id='url_delete' maxlength=255 />
-							<@inputGroupItem type='text'>
-								<@icon style='link' />
-							</@inputGroupItem>
-						</@inputGroup>
-					</@formGroup>
-					<@formGroup labelKey=' '>
-                    	<@checkBox orientation='switch' name='include_id_crm_user' labelKey='#i18n{crm.create_demand_type.labelIncludeIdCrmUser}' checked=true params='#i18n{crm.create_demand_type.labelIncludeIdCrmUserComment}' />
-						<@checkBox orientation='switch' name='need_authentication' labelKey='#i18n{crm.create_demand_type.labelNeedAuthentication}' checked=true params='#i18n{crm.create_demand_type.labelNeedAuthenticationComment}' />
-						<@checkBox orientation='switch' name='need_validation' labelKey='#i18n{crm.create_demand_type.labelNeedValidation}' checked=true params='#i18n{crm.create_demand_type.labelNeedValidationComment}' />
-					</@formGroup>
-					<@formGroup>
-						<@button type='submit' name='#i18n{crm.create_demand_type.buttonCreate}' title='#i18n{crm.create_demand_type.buttonCreate}' buttonIcon='check' />
-						<@aButton href='jsp/admin/plugins/crm/ManageDemandTypes.jsp' title='#i18n{crm.modify_category.buttonCancel}' buttonIcon='close' color='default' />
-					</@formGroup>
-				</@tform>
-			</@boxBody>
-		</@box>
-	</@columns>
-</@row>
+			<@formGroup labelFor='target' labelKey='#i18n{crm.create_demand_type.labelTarget}' helpKey='#i18n{crm.create_demand_type.labelTargetComment}'>
+				<@select name='target' id='target' default_value='0' items=targets_list />
+			</@formGroup>
+			<@formGroup labelFor='url_delete' labelKey='#i18n{crm.create_demand_type.labelUrlDelete}' helpKey='#i18n{crm.create_demand_type.labelUrlDeleteComment}'>
+				<@inputGroup>
+					<@input type='text' name='url_delete' id='url_delete' maxlength=255 value='' />
+					<@inputGroupItem type='text'>
+						<@icon style='link' />
+					</@inputGroupItem>
+				</@inputGroup>
+			</@formGroup>
+			<@formGroup labelFor='include_id_crm_user' labelKey='#i18n{crm.create_demand_type.labelIncludeIdCrmUser}' helpKey='#i18n{crm.create_demand_type.labelIncludeIdCrmUserComment}' hideLabel=['all']>
+				<@checkBox orientation='switch' name='include_id_crm_user' id='include_id_crm_user' labelKey='#i18n{crm.create_demand_type.labelIncludeIdCrmUser}' value='true' checked=true />
+			</@formGroup>
+			<@formGroup labelFor='need_authentication' labelKey='#i18n{crm.create_demand_type.labelNeedAuthentication}' helpKey='#i18n{crm.create_demand_type.labelNeedAuthenticationComment}' hideLabel=['all']>
+				<@checkBox orientation='switch' name='need_authentication' id='need_authentication' labelKey='#i18n{crm.create_demand_type.labelNeedAuthentication}' value='true' checked=true />
+			</@formGroup>
+			<@formGroup labelFor='need_validation' labelKey='#i18n{crm.create_demand_type.labelNeedValidation}' helpKey='#i18n{crm.create_demand_type.labelNeedValidationComment}' hideLabel=['all']>
+				<@checkBox orientation='switch' name='need_validation' id='need_validation' labelKey='#i18n{crm.create_demand_type.labelNeedValidation}' value='true' checked=true />
+			</@formGroup>
+			<@formGroup>
+				<@button type='submit' title='#i18n{crm.create_demand_type.buttonCreate}' buttonIcon='check' color='primary' />
+				<@aButton href='jsp/admin/plugins/crm/ManageDemandTypes.jsp' title='#i18n{crm.modify_category.buttonCancel}' buttonIcon='x' color='light' />
+			</@formGroup>
+		</@tform>
+	</@pageColumn>
+</@pageContainer>

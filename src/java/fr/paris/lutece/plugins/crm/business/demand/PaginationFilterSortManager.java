@@ -33,7 +33,7 @@
  */
 package fr.paris.lutece.plugins.crm.business.demand;
 
-import fr.paris.lutece.plugins.crm.service.CRMPlugin;
+import fr.paris.lutece.plugins.crm.service.CRMService;
 import fr.paris.lutece.plugins.crm.service.demand.DemandStatusCRMService;
 import fr.paris.lutece.plugins.crm.util.constants.CRMConstants;
 import fr.paris.lutece.portal.service.content.XPageAppService;
@@ -49,8 +49,10 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.Date;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+import jakarta.enterprise.inject.spi.CDI;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 /**
  * Manages pagination, filters and sort for demands
@@ -72,6 +74,7 @@ public class PaginationFilterSortManager
     public static final String SESSION_FILTER_STR_MODIFICATION_DATE = "strModificationDate";
     public static final String SESSION_FILTER_DEMAND_TYPE = "demandType";
     public static final String SESSION_FILTER_NOTIFICATION = "notification";
+    private final DemandStatusCRMService _demandStatusCRMService = CDI.current( ).select( DemandStatusCRMService.class ).get( );
     private HttpServletRequest _request;
     private String _strXpageApp;
 
@@ -83,7 +86,7 @@ public class PaginationFilterSortManager
      */
     public PaginationFilterSortManager( HttpServletRequest request )
     {
-        this( request, CRMPlugin.PLUGIN_NAME );
+        this( request, CRMService.PLUGIN_NAME );
 
     }
 
@@ -111,7 +114,7 @@ public class PaginationFilterSortManager
 
         int nIdStatus;
 
-        for ( DemandStatusCRM statusCRM : DemandStatusCRMService.getService( ).getAllStatusCRM( _request.getLocale( ) ) )
+        for ( DemandStatusCRM statusCRM : _demandStatusCRMService.getAllStatusCRM( _request.getLocale( ) ) )
         {
             nIdStatus = statusCRM.getIdStatusCRM( );
 

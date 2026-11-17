@@ -40,7 +40,9 @@ import fr.paris.lutece.plugins.crm.service.demand.DemandService;
 import fr.paris.lutece.plugins.crm.service.notification.NotificationService;
 import fr.paris.lutece.plugins.crm.service.user.CRMUserService;
 import fr.paris.lutece.plugins.crm.util.constants.CRMConstants;
-import fr.paris.lutece.portal.service.spring.SpringContextService;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.spi.CDI;
+import jakarta.inject.Inject;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 
 import org.apache.commons.lang3.StringUtils;
@@ -50,17 +52,21 @@ import org.apache.commons.lang3.StringUtils;
  * CRMService
  *
  */
-public final class CRMService
+@ApplicationScoped
+public class CRMService
 {
-    private static final String BEAN_CRM_CRMSERVICE = "crm.crmService";
+    public static final String PLUGIN_NAME = "crm";
+    @Inject
     private NotificationService _notificationService;
+    @Inject
     private DemandService _demandService;
+    @Inject
     private CRMUserService _crmUserService;
 
     /**
-     * Private constructor
+     * Constructor
      */
-    private CRMService( )
+    protected CRMService( )
     {
     }
 
@@ -68,10 +74,12 @@ public final class CRMService
      * Get the instance of {@link CRMService}
      * 
      * @return the instance
+     * @deprecated since 2.0.0, inject the bean instead of this static accessor
      */
+    @Deprecated( since = "2.0.0", forRemoval = true )
     public static CRMService getService( )
     {
-        return SpringContextService.getBean( BEAN_CRM_CRMSERVICE );
+        return CDI.current( ).select( CRMService.class ).get( );
     }
 
     /**

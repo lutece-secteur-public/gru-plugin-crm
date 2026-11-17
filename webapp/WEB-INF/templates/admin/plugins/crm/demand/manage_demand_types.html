@@ -1,97 +1,99 @@
 <#function getCategoryName categories_list id_category><#list categories_list as category><#if category.code = "" + id_category><#return category.name></#if></#list><#return ""></#function>
-<@row>
-	<@columns>
-		<@box>
-			<@boxHeader title='#i18n{crm.manage_demand_types.tableLabel}' skipHeader=true boxTools=true>
-				<@tform type='inline' method='post' action='jsp/admin/plugins/crm/ManageAdvancedParameters.jsp'>
-					<@button type='submit' name='' buttonIcon='cog me-1 mr-1' title='#i18n{crm.manage_demand_types.buttonAdvancedParameters}' />
-				</@tform>
-				<@tform type='inline' method='post' action='jsp/admin/plugins/crm/ManageCategories.jsp'>
-					<@button type='submit' name='' buttonIcon='tag me-1 mr-1' title='#i18n{crm.manage_demand_types.buttonManageCategories}' />
-				</@tform>
-				<@tform type='inline' method='post' action='jsp/admin/plugins/crm/CreateDemandType.jsp'>
-					<@button type='submit' name='' buttonIcon='plus me-1 mr-1' title='#i18n{crm.manage_demand_types.buttonAddDemandType}' />
-				</@tform>
-			</@boxHeader>
-			<@boxBody class='table-responsive'>
-				<@tform type='inline' method='post' action='jsp/admin/plugins/crm/ManageDemandTypes.jsp'>
-				<@input type="hidden" name="session" value="session" />
-				<@input type="hidden" name="search" value="search" />
-					<@formGroup labelFor='category_name' labelKey='#i18n{crm.manage_demand_types.columnLabel}' rows=2>
-						<#assign typeFilter><#if demand_type_filter??>${demand_type_filter.label}</#if></#assign>
-						<@input type='text' name='label' maxlength=50 value=typeFilter />
-					</@formGroup>
-					<@formGroup labelFor='url_resource' labelKey='#i18n{crm.manage_demand_types.columnUrlResource}' rows=2>
-						<#assign typeUrl><#if demand_type_filter??>${demand_type_filter.urlResource}</#if></#assign>
-						<@input type='text' name='url_resource' value=typeUrl />
-					</@formGroup>
-					<@formGroup labelFor='category_id_category' labelKey='#i18n{crm.manage_demand_types.columnCategory}' rows=2>
-						<#if demand_type_filter??><#assign id_category = demand_type_filter.idCategory><#else><#assign id_category = -1></#if>
-						<@select name="category_id_category" items=categories_list default_value=id_category?string />
-					</@formGroup>
-					<@formGroup labelFor='operator_date_begin' labelKey='#i18n{crm.manage_demand_types.columnDateBegin}' rows=2>
-						<#assign typeOp><#if demand_type_filter??>demand_type_filter.operatorDateBegin.id<#else>0</#if></#assign>
-						<@select name="operator_date_begin" default_value=typeOp?string items=operators_list />
-					</@formGroup>
-					<@formGroup labelFor='date_begin' labelKey='#i18n{crm.manage_demand_types.columnDateBegin}' rows=2>
-						<#assign typeDate><#if demand_type_filter?? && demand_type_filter.dateBegin??>${demand_type_filter.dateBegin?date}</#if></#assign>
-						<@input type='date' name='date_begin' id='date_begin' value=typeDate format='d/m/Y' />
-					</@formGroup>
-					<@formGroup labelFor='operator_date_end' labelKey='#i18n{crm.manage_demand_types.columnDateEnd}' rows=2>
-						<#assign typeOp><#if demand_type_filter??>demand_type_filter.operatorDateEnd.id<#else>0</#if></#assign>
-						<@select name="operator_date_end" default_value="date_end" items=operators_list />
-					</@formGroup>
-					<@formGroup labelFor='date_end' labelKey='#i18n{crm.manage_demand_types.columnDateEnd}' rows=2>
-						<#assign typeDate><#if demand_type_filter?? && demand_type_filter.dateEnd??>${demand_type_filter.dateEnd?date}</#if></#assign>
-						<@input type='date' name='date_end' id='date_end' value=typeDate format='d/m/Y' />
-					</@formGroup>
-					<@formGroup  labelKey='-' labelClass='text-white' rows=2>
-						<@button type='submit' name='' title='#i18n{crm.manage_demand_types.buttonSearch}' size='' buttonIcon='search' />
-					</@formGroup>
-				</@tform>
-				<#if !is_well_ordered>
-					<@alert>
-						<@aButton href='jsp/admin/plugins/crm/DoReorderDemandTypes.jsp' title='#i18n{crm.manage_demand_types.labelReorderDemandTypes}' buttonIcon='close' color='default' />
-					</@alert>
-				</#if>
-				<!-- <form method="post" action="jsp/admin/plugins/crm/ManageDemandTypes.jsp"><input type="hidden" name="session" value="session" /></form> -->
-				<@table headBody=true>
-					<@tr>
-						<@th>#i18n{crm.manage_demand_types.columnOrder} <@sort jsp_url="jsp/admin/plugins/crm/ManageDemandTypes.jsp" attribute="order&amp;session=session" /></@th>
-						<@th>#i18n{crm.manage_demand_types.columnLabel}	<@sort jsp_url="jsp/admin/plugins/crm/ManageDemandTypes.jsp" attribute="label&amp;session=session" /></@th>
-						<@th>#i18n{crm.manage_demand_types.columnUrlResource} <@sort jsp_url="jsp/admin/plugins/crm/ManageDemandTypes.jsp" attribute="urlResource&amp;session=session" /></@th>
-						<@th>#i18n{crm.manage_demand_types.columnDateBegin} <@sort jsp_url="jsp/admin/plugins/crm/ManageDemandTypes.jsp" attribute="dateBegin&amp;session=session" /></@th>
-						<@th>#i18n{crm.manage_demand_types.columnDateEnd} <@sort jsp_url="jsp/admin/plugins/crm/ManageDemandTypes.jsp" attribute="dateEnd&amp;session=session" /></@th>
-						<@th>#i18n{crm.manage_demand_types.columnActions}</@th>
-					</@tr>
-					<@tableHeadBodySeparator />
-						<#list demand_types_list as demand_type>
-						<@tr>
-							<@td>${demand_type.order}</@td>
-							<@td>
-								<strong>${demand_type.label}</strong>
-								<#assign urlTitle><#if demand_type.urlResource?length gt 35>${demand_type.urlResource?substring(0,35)}...<#else>${demand_type.urlResource}</#if></#assign>	
-								
-								<@p>#i18n{crm.manage_demand_types.columnCategory}: <strong>${getCategoryName( categories_list, demand_type.idCategory)}</strong></@p>
-							</@td>
-							<@td><@aButton href='${demand_type.urlResource}' title=urlTitle buttonIcon='globe me-1 mr-1' hideTitle=['xs'] /></@td>
-							<@td><#if demand_type.dateBegin??>${demand_type.dateBegin?date}</#if></@td>
-							<@td><#if demand_type.dateEnd??>${demand_type.dateEnd?date}</#if></@td>
-							<@td>
-								<@aButton href='jsp/admin/plugins/crm/ModifyDemandType.jsp?id_demand_type=${demand_type.idDemandType}' title='#i18n{portal.util.labelModify}' buttonIcon='edit me-1 mr-1' hideTitle=['xs'] />
-								<#if demand_type.isOpen(  )>
-									<@aButton href='jsp/admin/plugins/crm/DoDisableDemandType.jsp?id_demand_type=${demand_type.idDemandType}' title='#i18n{crm.manage_demand_types.buttonDisable}' buttonIcon='stop me-1 mr-1' hideTitle=['xs'] />
-								<#else>
-									<@aButton href='jsp/admin/plugins/crm/DoEnableDemandType.jsp?id_demand_type=${demand_type.idDemandType}' title='#i18n{crm.manage_demand_types.buttonEnable}' buttonIcon='play me-1 mr-1' hideTitle=['xs'] />
-								</#if>
-								<@aButton href='jsp/admin/plugins/crm/PurgeDemandType.jsp?id_demand_type=${demand_type.idDemandType}' title='#i18n{crm.manage_demand_types.buttonDraftPurge}' color='danger' buttonIcon='filter me-1 mr-1' hideTitle=['xs'] />
-                                <@aButton href='jsp/admin/plugins/crm/RemoveDemandType.jsp?id_demand_type=${demand_type.idDemandType}' title='#i18n{portal.util.labelDelete}' color='danger' buttonIcon='trash me-1 mr-1' hideTitle=['xs'] />
-							</@td>
-						</@tr>		
-						</#list>
-				</@table>
-				<@paginationAdmin paginator=paginator combo=1 />
-			</@boxBody>
-		</@box>
-	</@columns>
-</@row>
+<#assign sortUrl = 'jsp/admin/plugins/crm/ManageDemandTypes.jsp?view=manageDemandTypes&session=session' />
+<@pageContainer>
+	<@pageColumn>
+		<@pageHeader title='#i18n{crm.manage_demand_types.pageTitle}'>
+			<@button type='button' title='#i18n{crm.manage_demand_types.buttonSearch}' buttonIcon='search' color='light' params={'data-bs-toggle': 'modal', 'data-bs-target': '#searchDemandTypes'} />
+			<@aButton href='jsp/admin/plugins/crm/ManageDemandTypes.jsp?view=manageAdvancedParameters' buttonIcon='settings' title='#i18n{crm.manage_demand_types.buttonAdvancedParameters}' color='light' />
+			<@aButton href='jsp/admin/plugins/crm/ManageCategories.jsp' buttonIcon='tag' title='#i18n{crm.manage_demand_types.buttonManageCategories}' color='light' />
+			<@aButton href='jsp/admin/plugins/crm/ManageDemandTypes.jsp?view=createDemandType' buttonIcon='plus' title='#i18n{crm.manage_demand_types.buttonAddDemandType}' color='primary' />
+		</@pageHeader>
+		<@messages infos=infos![] errors=errors![] warnings=warnings![] />
+		<#if !is_well_ordered>
+			<@alert color='warning'>
+				<@aButton href='jsp/admin/plugins/crm/ManageDemandTypes.jsp?view=confirmReorderDemandTypes' title='#i18n{crm.manage_demand_types.labelReorderDemandTypes}' buttonIcon='arrows-sort' color='warning' />
+			</@alert>
+		</#if>
+		<#if demand_types_list?has_content>
+			<@manageFeature>
+				<@manageFeatureItem>
+					<@manageFeatureItemColumn auto=true>#i18n{crm.manage_demand_types.columnOrder} <@sort jsp_url=sortUrl attribute='order' type='number' /></@manageFeatureItemColumn>
+					<@manageFeatureItemColumn auto=true>#i18n{crm.manage_demand_types.columnLabel} <@sort jsp_url=sortUrl attribute='label' /></@manageFeatureItemColumn>
+					<@manageFeatureItemColumn auto=true>#i18n{crm.manage_demand_types.columnUrlResource} <@sort jsp_url=sortUrl attribute='urlResource' /></@manageFeatureItemColumn>
+					<@manageFeatureItemColumn auto=true>#i18n{crm.manage_demand_types.columnDateBegin} <@sort jsp_url=sortUrl attribute='dateBegin' type='date' /></@manageFeatureItemColumn>
+					<@manageFeatureItemColumn auto=true>#i18n{crm.manage_demand_types.columnDateEnd} <@sort jsp_url=sortUrl attribute='dateEnd' type='date' /></@manageFeatureItemColumn>
+					<@manageFeatureItemColumn align='end'>#i18n{crm.manage_demand_types.columnActions}</@manageFeatureItemColumn>
+				</@manageFeatureItem>
+				<#list demand_types_list as demand_type>
+				<#assign urlTitle><#if demand_type.urlResource?length gt 35>${demand_type.urlResource?substring(0,35)}...<#else>${demand_type.urlResource}</#if></#assign>
+				<@manageFeatureItem>
+					<@manageFeatureItemColumn auto=true>${demand_type.order}</@manageFeatureItemColumn>
+					<@manageFeatureItemColumn auto=true flex=false>
+						<@p class='fw-bold'>${demand_type.label!}</@p>
+						<@p>#i18n{crm.manage_demand_types.columnCategory} : ${getCategoryName( categories_list, demand_type.idCategory )}</@p>
+					</@manageFeatureItemColumn>
+					<@manageFeatureItemColumn auto=true>
+						<@aButton href='${demand_type.urlResource}' title=urlTitle buttonIcon='world' color='light' hideTitle=['xs'] />
+					</@manageFeatureItemColumn>
+					<@manageFeatureItemColumn auto=true><#if demand_type.dateBegin??>${demand_type.dateBegin?date}</#if></@manageFeatureItemColumn>
+					<@manageFeatureItemColumn auto=true><#if demand_type.dateEnd??>${demand_type.dateEnd?date}</#if></@manageFeatureItemColumn>
+					<@manageFeatureItemColumn align='end'>
+						<@aButton href='jsp/admin/plugins/crm/ManageDemandTypes.jsp?view=modifyDemandType&id_demand_type=${demand_type.idDemandType}' title='#i18n{portal.util.labelModify}' buttonIcon='edit' hideTitle=['xs'] />
+						<#if demand_type.open>
+							<@aButton href='jsp/admin/plugins/crm/ManageDemandTypes.jsp?view=confirmDisableDemandType&id_demand_type=${demand_type.idDemandType}' title='#i18n{crm.manage_demand_types.buttonDisable}' buttonIcon='player-stop' hideTitle=['xs'] />
+						<#else>
+							<@aButton href='jsp/admin/plugins/crm/ManageDemandTypes.jsp?view=confirmEnableDemandType&id_demand_type=${demand_type.idDemandType}' title='#i18n{crm.manage_demand_types.buttonEnable}' buttonIcon='player-play' hideTitle=['xs'] />
+						</#if>
+						<@aButton href='jsp/admin/plugins/crm/ManageDemandTypes.jsp?view=confirmPurgeDemandType&id_demand_type=${demand_type.idDemandType}' title='#i18n{crm.manage_demand_types.buttonDraftPurge}' color='danger' buttonIcon='filter' hideTitle=['xs'] />
+						<@aButton href='jsp/admin/plugins/crm/ManageDemandTypes.jsp?view=confirmRemoveDemandType&id_demand_type=${demand_type.idDemandType}' title='#i18n{portal.util.labelDelete}' color='danger' buttonIcon='trash' hideTitle=['xs'] />
+					</@manageFeatureItemColumn>
+				</@manageFeatureItem>
+				</#list>
+			</@manageFeature>
+			<@paginationAdmin paginator=paginator combo=1 />
+		<#else>
+			<@empty title='#i18n{portal.util.labelNoItem}' />
+		</#if>
+	</@pageColumn>
+</@pageContainer>
+<@modal id='searchDemandTypes'>
+	<@modalHeader modalTitle='#i18n{crm.manage_demand_types.buttonSearch}' />
+	<@modalBody>
+		<@tform method='post' action='jsp/admin/plugins/crm/ManageDemandTypes.jsp'>
+			<@input type='hidden' name='view' value='manageDemandTypes' />
+			<@input type='hidden' name='session' value='session' />
+			<@input type='hidden' name='search' value='search' />
+			<#assign typeFilter><#if demand_type_filter?? && demand_type_filter.label??>${demand_type_filter.label}</#if></#assign>
+			<@formGroup labelFor='label' labelKey='#i18n{crm.manage_demand_types.columnLabel}' rows=2>
+				<@input type='text' name='label' id='label' maxlength=50 value=typeFilter />
+			</@formGroup>
+			<#assign typeUrl><#if demand_type_filter?? && demand_type_filter.urlResource??>${demand_type_filter.urlResource}</#if></#assign>
+			<@formGroup labelFor='url_resource' labelKey='#i18n{crm.manage_demand_types.columnUrlResource}' rows=2>
+				<@input type='text' name='url_resource' id='url_resource' value=typeUrl />
+			</@formGroup>
+			<#if demand_type_filter??><#assign id_category = demand_type_filter.idCategory><#else><#assign id_category = -1></#if>
+			<@formGroup labelFor='category_id_category' labelKey='#i18n{crm.manage_demand_types.columnCategory}' rows=2>
+				<@select name='category_id_category' id='category_id_category' items=categories_list default_value=id_category?string />
+			</@formGroup>
+			<#assign typeOpBegin = ( demand_type_filter?? && demand_type_filter.operatorDateBegin?? )?then( demand_type_filter.operatorDateBegin.id?c, '0' ) />
+			<@formGroup labelFor='operator_date_begin' labelKey='#i18n{crm.manage_demand_types.columnDateBegin}' rows=2>
+				<@select name='operator_date_begin' id='operator_date_begin' default_value=typeOpBegin items=operators_list />
+			</@formGroup>
+			<#assign typeDateBegin = ( demand_type_filter?? && demand_type_filter.dateBegin?? )?then( demand_type_filter.dateBegin?date?string, '' ) />
+			<@formGroup labelFor='date_begin' labelKey='#i18n{crm.manage_demand_types.columnDateBegin}' rows=2>
+				<@input type='date' name='date_begin' id='date_begin' value=typeDateBegin format='d/m/Y' />
+			</@formGroup>
+			<#assign typeOpEnd = ( demand_type_filter?? && demand_type_filter.operatorDateEnd?? )?then( demand_type_filter.operatorDateEnd.id?c, '0' ) />
+			<@formGroup labelFor='operator_date_end' labelKey='#i18n{crm.manage_demand_types.columnDateEnd}' rows=2>
+				<@select name='operator_date_end' id='operator_date_end' default_value=typeOpEnd items=operators_list />
+			</@formGroup>
+			<#assign typeDateEnd = ( demand_type_filter?? && demand_type_filter.dateEnd?? )?then( demand_type_filter.dateEnd?date?string, '' ) />
+			<@formGroup labelFor='date_end' labelKey='#i18n{crm.manage_demand_types.columnDateEnd}' rows=2>
+				<@input type='date' name='date_end' id='date_end' value=typeDateEnd format='d/m/Y' />
+			</@formGroup>
+			<@formGroup rows=2>
+				<@button type='submit' title='#i18n{crm.manage_demand_types.buttonSearch}' buttonIcon='search' color='primary' />
+			</@formGroup>
+		</@tform>
+	</@modalBody>
+</@modal>

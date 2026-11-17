@@ -33,7 +33,7 @@
  */
 package fr.paris.lutece.plugins.crm.service.signrequest;
 
-import fr.paris.lutece.portal.service.spring.SpringContextService;
+import fr.paris.lutece.portal.service.util.CdiHelper;
 import fr.paris.lutece.util.signrequest.AbstractPrivateKeyAuthenticator;
 import fr.paris.lutece.util.signrequest.RequestAuthenticator;
 
@@ -44,8 +44,8 @@ import fr.paris.lutece.util.signrequest.RequestAuthenticator;
  */
 public final class CRMRequestAuthenticatorService
 {
-    private static final String BEAN_CRM_REQUESTAUTHENTICATOR_FOR_WS = "crm.requestAuthenticatorForWS";
-    private static final String BEAN_CRM_REQUESTAUTHENTICATOR_FOR_URL = "crm.requestAuthenticatorForUrl";
+    public static final String BEAN_CRM_REQUESTAUTHENTICATOR_FOR_WS = "crm.requestAuthenticatorForWS";
+    public static final String BEAN_CRM_REQUESTAUTHENTICATOR_FOR_URL = "crm.requestAuthenticatorForUrl";
 
     /**
      * Private constructor
@@ -61,7 +61,7 @@ public final class CRMRequestAuthenticatorService
      */
     public static RequestAuthenticator getRequestAuthenticatorForWS( )
     {
-        return SpringContextService.getBean( BEAN_CRM_REQUESTAUTHENTICATOR_FOR_WS );
+        return CdiHelper.getReference( RequestAuthenticator.class, BEAN_CRM_REQUESTAUTHENTICATOR_FOR_WS );
     }
 
     /**
@@ -71,6 +71,6 @@ public final class CRMRequestAuthenticatorService
      */
     public static AbstractPrivateKeyAuthenticator getRequestAuthenticatorForUrl( )
     {
-        return SpringContextService.getBean( BEAN_CRM_REQUESTAUTHENTICATOR_FOR_URL );
+        return CdiHelper.getReference( AbstractPrivateKeyAuthenticator.class, BEAN_CRM_REQUESTAUTHENTICATOR_FOR_URL );
     }
 }

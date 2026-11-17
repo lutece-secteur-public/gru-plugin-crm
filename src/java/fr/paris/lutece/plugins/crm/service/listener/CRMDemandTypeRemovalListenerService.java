@@ -36,20 +36,27 @@ package fr.paris.lutece.plugins.crm.service.listener;
 
 import fr.paris.lutece.plugins.crm.business.demand.DemandType;
 import fr.paris.lutece.plugins.crm.util.IListenerDemandType;
-import fr.paris.lutece.portal.service.spring.SpringContextService;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Any;
+import jakarta.enterprise.inject.Instance;
+import jakarta.enterprise.inject.spi.CDI;
+import jakarta.inject.Inject;
 
 /**
  * Listener Service for demand category deletion
  */
+@ApplicationScoped
 public class CRMDemandTypeRemovalListenerService
 {
-    private static final String BEAN_NAME = "crm.crmDemandCategoryRemovalListenerService";
-    private static CRMDemandTypeRemovalListenerService _instance;
+    @Inject
+    @Any
+    private Instance<IListenerDemandType> _listeners;
 
     /**
-     * Private constructor
+     * Constructor
      */
-    private CRMDemandTypeRemovalListenerService( )
+    protected CRMDemandTypeRemovalListenerService( )
     {
     }
 
@@ -57,15 +64,12 @@ public class CRMDemandTypeRemovalListenerService
      * Get the instance of the service
      * 
      * @return The instance of the service
+     * @deprecated since 2.0.0, inject the bean instead of this static accessor
      */
+    @Deprecated( since = "2.0.0", forRemoval = true )
     public static CRMDemandTypeRemovalListenerService getService( )
     {
-        if ( _instance == null )
-        {
-            _instance = SpringContextService.getBean( BEAN_NAME );
-        }
-
-        return _instance;
+        return CDI.current( ).select( CRMDemandTypeRemovalListenerService.class ).get( );
     }
 
     /**
@@ -78,7 +82,7 @@ public class CRMDemandTypeRemovalListenerService
      */
     public void notifyListeners( DemandType demandType, String strEventName )
     {
-        for ( IListenerDemandType listener : SpringContextService.getBeansOfType( IListenerDemandType.class ) )
+        for ( IListenerDemandType listener : _listeners )
         {
             listener.notifyListener( demandType, strEventName );
         }

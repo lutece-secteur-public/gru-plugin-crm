@@ -33,19 +33,18 @@
  */
 package fr.paris.lutece.plugins.crm.business.parameters;
 
-import fr.paris.lutece.plugins.crm.service.CRMPlugin;
+import fr.paris.lutece.plugins.crm.service.CRMService;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
-import fr.paris.lutece.portal.service.spring.SpringContextService;
+import jakarta.enterprise.inject.spi.CDI;
 
 /**
  * The Class AdvancedParametersHome.
  */
 public final class AdvancedParametersHome
 {
-    private static final String BEAN_CRM_ADVANCEDPARAMETERSDAO = "crm.advancedParametersDAO";
-    private static Plugin _plugin = PluginService.getPlugin( CRMPlugin.PLUGIN_NAME );
-    private static IAdvancedParametersDAO _dao = SpringContextService.getBean( BEAN_CRM_ADVANCEDPARAMETERSDAO );
+    private static Plugin _plugin = PluginService.getPlugin( CRMService.PLUGIN_NAME );
+    private static IAdvancedParametersDAO _dao = CDI.current( ).select( IAdvancedParametersDAO.class ).get( );
 
     /**
      * Private constructor - this class need not be instantiated

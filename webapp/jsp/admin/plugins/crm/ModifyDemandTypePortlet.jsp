@@ -1,12 +1,7 @@
 <%@ page errorPage="../../ErrorPage.jsp" %>
+<jsp:include page="../../PortletAdminHeader.jsp" />
 
-<jsp:include page="../../AdminHeader.jsp" />
+<%@page import="fr.paris.lutece.plugins.crm.web.demand.DemandTypeJspBean"%>
 
-<jsp:useBean id="crmDemandTypePortlet" scope="session" class="fr.paris.lutece.plugins.crm.web.portlet.DemandTypePortletJspBean" />
-
-<%
-	crmDemandTypePortlet.init( request, fr.paris.lutece.plugins.crm.web.demand.DemandTypeJspBean.RIGHT_MANAGE_CRM_DEMAND_TYPES );
-%>
-<%= crmDemandTypePortlet.getModify( request ) %>
-
-<%@ include file="../../AdminFooter.jsp" %>
+${ crmDemandTypePortletJspBean.init( pageContext.request, DemandTypeJspBean.RIGHT_MANAGE_CRM_DEMAND_TYPES ) }
+${ crmDemandTypePortletJspBean.getModify( pageContext.request ) }

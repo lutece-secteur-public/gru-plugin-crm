@@ -35,6 +35,8 @@ package fr.paris.lutece.plugins.crm.business.demand.category;
 
 import fr.paris.lutece.test.LuteceTestCase;
 
+import org.junit.jupiter.api.Test;
+
 /**
  *
  * CategoryTest
@@ -46,16 +48,19 @@ public class CategoryTest extends LuteceTestCase
     private static final String NAME2 = "Name2";
     private static final String DESCRIPTION1 = "Description1";
     private static final String DESCRIPTION2 = "Description2";
+    private static final String CODE1 = "Code1";
 
     /**
      * Test business of class fr.paris.lutece.plugins.crm.business.demand.category.Category
      */
+    @Test
     public void testBusiness( )
     {
         // Initialize an object
         Category category = new Category( );
         category.setName( NAME1 );
         category.setDescription( DESCRIPTION1 );
+        category.setCode( CODE1 );
 
         // Test create
         CategoryHome.create( category );

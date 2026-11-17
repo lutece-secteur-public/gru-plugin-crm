@@ -1,12 +1,9 @@
 <%@ page errorPage="../../ErrorPage.jsp" %>
 
+${ pageContext.setAttribute( 'strContent', crmCategoryJspBean.processController( pageContext.request , pageContext.response ) ) }
+
 <jsp:include page="../../AdminHeader.jsp" />
 
-<jsp:useBean id="crmCategory" scope="session" class="fr.paris.lutece.plugins.crm.web.category.CategoryJspBean" />
-
-<%
-	crmCategory.init( request, fr.paris.lutece.plugins.crm.web.demand.DemandTypeJspBean.RIGHT_MANAGE_CRM_DEMAND_TYPES );
-%>
-<%= crmCategory.getManageCategories( request ) %>
+${ pageContext.getAttribute( 'strContent' ) }
 
 <%@ include file="../../AdminFooter.jsp" %>

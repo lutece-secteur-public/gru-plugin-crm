@@ -42,6 +42,8 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.List;
 import java.util.Locale;
 
+import jakarta.enterprise.inject.spi.CDI;
+
 /**
  *
  * DemandTypeRoleRemovalListener
@@ -49,6 +51,8 @@ import java.util.Locale;
  */
 public class DemandTypeRoleRemovalListener implements RemovalListener
 {
+    private final DemandTypeService _demandTypeService = CDI.current( ).select( DemandTypeService.class ).get( );
+
     private static final String PROPERTY_DEMAND_TYPE_CANNOT_BE_REMOVED = "crm.message.roleCannotBeRemoved";
 
     /**
@@ -67,7 +71,7 @@ public class DemandTypeRoleRemovalListener implements RemovalListener
             DemandTypeFilter rtFilter = new DemandTypeFilter( );
             rtFilter.setRole( strId );
 
-            List<DemandType> listDemandTypes = DemandTypeService.getService( ).findByFilter( rtFilter );
+            List<DemandType> listDemandTypes = _demandTypeService.findByFilter( rtFilter );
 
             if ( ( listDemandTypes != null ) && ( listDemandTypes.size( ) > 0 ) )
             {

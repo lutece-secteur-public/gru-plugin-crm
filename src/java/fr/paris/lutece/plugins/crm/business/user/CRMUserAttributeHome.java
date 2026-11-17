@@ -33,10 +33,10 @@
  */
 package fr.paris.lutece.plugins.crm.business.user;
 
-import fr.paris.lutece.plugins.crm.service.CRMPlugin;
+import fr.paris.lutece.plugins.crm.service.CRMService;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
-import fr.paris.lutece.portal.service.spring.SpringContextService;
+import jakarta.enterprise.inject.spi.CDI;
 
 import java.util.Map;
 
@@ -47,9 +47,8 @@ import java.util.Map;
  */
 public final class CRMUserAttributeHome
 {
-    private static final String BEAN_CRM_CRMUSERATTRIBUTEDAO = "crm.crmUserAttributeDAO";
-    private static Plugin _plugin = PluginService.getPlugin( CRMPlugin.PLUGIN_NAME );
-    private static ICRMUserAttributeDAO _dao = SpringContextService.getBean( BEAN_CRM_CRMUSERATTRIBUTEDAO );
+    private static Plugin _plugin = PluginService.getPlugin( CRMService.PLUGIN_NAME );
+    private static ICRMUserAttributeDAO _dao = CDI.current( ).select( ICRMUserAttributeDAO.class ).get( );
 
     /**
      * Private constructor - this class need not be instantiated

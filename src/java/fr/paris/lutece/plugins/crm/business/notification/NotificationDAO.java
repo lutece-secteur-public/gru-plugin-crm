@@ -38,12 +38,14 @@ import fr.paris.lutece.util.sql.DAOUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import jakarta.enterprise.context.ApplicationScoped;
 
 /**
  *
  * NotificationDAO
  *
  */
+@ApplicationScoped
 public class NotificationDAO implements INotificationDAO
 {
     // SQL QUERIES
@@ -70,19 +72,19 @@ public class NotificationDAO implements INotificationDAO
      */
     public int newPrimaryKey( Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_NEW_PK, plugin );
-        daoUtil.executeQuery( );
-
-        int nKey = 1;
-
-        if ( daoUtil.next( ) )
+        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_NEW_PK, plugin ) )
         {
-            nKey = daoUtil.getInt( 1 ) + 1;
+            daoUtil.executeQuery( );
+
+            int nKey = 1;
+
+            if ( daoUtil.next( ) )
+            {
+                nKey = daoUtil.getInt( 1 ) + 1;
+            }
+
+            return nKey;
         }
-
-        daoUtil.free( );
-
-        return nKey;
     }
 
     /**
@@ -94,21 +96,22 @@ public class NotificationDAO implements INotificationDAO
 
         if ( notification != null )
         {
-            DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, plugin );
+            try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, plugin ) )
+            {
 
-            int nIndex = 1;
-            notification.setIdNotification( newPrimaryKey( plugin ) );
+                int nIndex = 1;
+                notification.setIdNotification( newPrimaryKey( plugin ) );
 
-            daoUtil.setInt( nIndex++, notification.getIdNotification( ) );
-            daoUtil.setInt( nIndex++, notification.getIdDemand( ) );
-            daoUtil.setBoolean( nIndex++, notification.isRead( ) );
-            daoUtil.setString( nIndex++, notification.getObject( ) );
-            daoUtil.setString( nIndex++, notification.getMessage( ) );
-            daoUtil.setTimestamp( nIndex++, notification.getDateCreation( ) );
-            daoUtil.setString( nIndex++, notification.getSender( ) );
+                daoUtil.setInt( nIndex++, notification.getIdNotification( ) );
+                daoUtil.setInt( nIndex++, notification.getIdDemand( ) );
+                daoUtil.setBoolean( nIndex++, notification.isRead( ) );
+                daoUtil.setString( nIndex++, notification.getObject( ) );
+                daoUtil.setString( nIndex++, notification.getMessage( ) );
+                daoUtil.setTimestamp( nIndex++, notification.getDateCreation( ) );
+                daoUtil.setString( nIndex++, notification.getSender( ) );
 
-            daoUtil.executeUpdate( );
-            daoUtil.free( );
+                daoUtil.executeUpdate( );
+            }
 
             nKey = notification.getIdNotification( );
         }
@@ -121,28 +124,28 @@ public class NotificationDAO implements INotificationDAO
      */
     public Notification load( int nIdNotification, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT, plugin );
-        daoUtil.setInt( 1, nIdNotification );
-        daoUtil.executeQuery( );
-
-        Notification notification = null;
-
-        if ( daoUtil.next( ) )
+        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT, plugin ) )
         {
-            int nIndex = 1;
-            notification = new Notification( );
-            notification.setIdNotification( daoUtil.getInt( nIndex++ ) );
-            notification.setIdDemand( daoUtil.getInt( nIndex++ ) );
-            notification.setIsRead( daoUtil.getBoolean( nIndex++ ) );
-            notification.setObject( daoUtil.getString( nIndex++ ) );
-            notification.setMessage( daoUtil.getString( nIndex++ ) );
-            notification.setDateCreation( daoUtil.getTimestamp( nIndex++ ) );
-            notification.setSender( daoUtil.getString( nIndex++ ) );
+            daoUtil.setInt( 1, nIdNotification );
+            daoUtil.executeQuery( );
+
+            Notification notification = null;
+
+            if ( daoUtil.next( ) )
+            {
+                int nIndex = 1;
+                notification = new Notification( );
+                notification.setIdNotification( daoUtil.getInt( nIndex++ ) );
+                notification.setIdDemand( daoUtil.getInt( nIndex++ ) );
+                notification.setIsRead( daoUtil.getBoolean( nIndex++ ) );
+                notification.setObject( daoUtil.getString( nIndex++ ) );
+                notification.setMessage( daoUtil.getString( nIndex++ ) );
+                notification.setDateCreation( daoUtil.getTimestamp( nIndex++ ) );
+                notification.setSender( daoUtil.getString( nIndex++ ) );
+            }
+
+            return notification;
         }
-
-        daoUtil.free( );
-
-        return notification;
     }
 
     /**
@@ -154,17 +157,18 @@ public class NotificationDAO implements INotificationDAO
         {
             int nIndex = 1;
 
-            DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE, plugin );
+            try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE, plugin ) )
+            {
 
-            daoUtil.setBoolean( nIndex++, notification.isRead( ) );
-            daoUtil.setString( nIndex++, notification.getObject( ) );
-            daoUtil.setString( nIndex++, notification.getMessage( ) );
-            daoUtil.setTimestamp( nIndex++, notification.getDateCreation( ) );
-            daoUtil.setString( nIndex++, notification.getSender( ) );
+                daoUtil.setBoolean( nIndex++, notification.isRead( ) );
+                daoUtil.setString( nIndex++, notification.getObject( ) );
+                daoUtil.setString( nIndex++, notification.getMessage( ) );
+                daoUtil.setTimestamp( nIndex++, notification.getDateCreation( ) );
+                daoUtil.setString( nIndex++, notification.getSender( ) );
 
-            daoUtil.setInt( nIndex++, notification.getIdNotification( ) );
-            daoUtil.executeUpdate( );
-            daoUtil.free( );
+                daoUtil.setInt( nIndex++, notification.getIdNotification( ) );
+                daoUtil.executeUpdate( );
+            }
         }
     }
 
@@ -173,10 +177,11 @@ public class NotificationDAO implements INotificationDAO
      */
     public void delete( int nIdNotification, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE, plugin );
-        daoUtil.setInt( 1, nIdNotification );
-        daoUtil.executeUpdate( );
-        daoUtil.free( );
+        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE, plugin ) )
+        {
+            daoUtil.setInt( 1, nIdNotification );
+            daoUtil.executeUpdate( );
+        }
     }
 
     /**
@@ -184,10 +189,11 @@ public class NotificationDAO implements INotificationDAO
      */
     public void deleteByIdDemand( int nIdDemand, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE_BY_ID_DEMAND, plugin );
-        daoUtil.setInt( 1, nIdDemand );
-        daoUtil.executeUpdate( );
-        daoUtil.free( );
+        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE_BY_ID_DEMAND, plugin ) )
+        {
+            daoUtil.setInt( 1, nIdDemand );
+            daoUtil.executeUpdate( );
+        }
     }
 
     /**
@@ -201,26 +207,26 @@ public class NotificationDAO implements INotificationDAO
         sbSQL.append( SQL_DESC );
 
         List<Notification> listNotifications = new ArrayList<Notification>( );
-        DAOUtil daoUtil = new DAOUtil( sbSQL.toString( ), plugin );
-        daoUtil.executeQuery( );
-
-        while ( daoUtil.next( ) )
+        try ( DAOUtil daoUtil = new DAOUtil( sbSQL.toString( ), plugin ) )
         {
-            int nIndex = 1;
-            Notification notification = new Notification( );
-            notification.setIdNotification( daoUtil.getInt( nIndex++ ) );
-            notification.setIdDemand( daoUtil.getInt( nIndex++ ) );
-            notification.setIsRead( daoUtil.getBoolean( nIndex++ ) );
-            notification.setObject( daoUtil.getString( nIndex++ ) );
-            notification.setMessage( daoUtil.getString( nIndex++ ) );
-            notification.setDateCreation( daoUtil.getTimestamp( nIndex++ ) );
-            notification.setSender( daoUtil.getString( nIndex++ ) );
-            listNotifications.add( notification );
+            daoUtil.executeQuery( );
+
+            while ( daoUtil.next( ) )
+            {
+                int nIndex = 1;
+                Notification notification = new Notification( );
+                notification.setIdNotification( daoUtil.getInt( nIndex++ ) );
+                notification.setIdDemand( daoUtil.getInt( nIndex++ ) );
+                notification.setIsRead( daoUtil.getBoolean( nIndex++ ) );
+                notification.setObject( daoUtil.getString( nIndex++ ) );
+                notification.setMessage( daoUtil.getString( nIndex++ ) );
+                notification.setDateCreation( daoUtil.getTimestamp( nIndex++ ) );
+                notification.setSender( daoUtil.getString( nIndex++ ) );
+                listNotifications.add( notification );
+            }
+
+            return listNotifications;
         }
-
-        daoUtil.free( );
-
-        return listNotifications;
     }
 
     /**
@@ -234,27 +240,27 @@ public class NotificationDAO implements INotificationDAO
         sbSQL.append( SQL_DATE_CREATION );
         sbSQL.append( SQL_DESC );
 
-        DAOUtil daoUtil = new DAOUtil( sbSQL.toString( ), plugin );
-        setFilterValues( nFilter, daoUtil );
-        daoUtil.executeQuery( );
-
-        while ( daoUtil.next( ) )
+        try ( DAOUtil daoUtil = new DAOUtil( sbSQL.toString( ), plugin ) )
         {
-            int nIndex = 1;
-            Notification notification = new Notification( );
-            notification.setIdNotification( daoUtil.getInt( nIndex++ ) );
-            notification.setIdDemand( daoUtil.getInt( nIndex++ ) );
-            notification.setIsRead( daoUtil.getBoolean( nIndex++ ) );
-            notification.setObject( daoUtil.getString( nIndex++ ) );
-            notification.setMessage( daoUtil.getString( nIndex++ ) );
-            notification.setDateCreation( daoUtil.getTimestamp( nIndex++ ) );
-            notification.setSender( daoUtil.getString( nIndex++ ) );
-            listNotifications.add( notification );
+            setFilterValues( nFilter, daoUtil );
+            daoUtil.executeQuery( );
+
+            while ( daoUtil.next( ) )
+            {
+                int nIndex = 1;
+                Notification notification = new Notification( );
+                notification.setIdNotification( daoUtil.getInt( nIndex++ ) );
+                notification.setIdDemand( daoUtil.getInt( nIndex++ ) );
+                notification.setIsRead( daoUtil.getBoolean( nIndex++ ) );
+                notification.setObject( daoUtil.getString( nIndex++ ) );
+                notification.setMessage( daoUtil.getString( nIndex++ ) );
+                notification.setDateCreation( daoUtil.getTimestamp( nIndex++ ) );
+                notification.setSender( daoUtil.getString( nIndex++ ) );
+                listNotifications.add( notification );
+            }
+
+            return listNotifications;
         }
-
-        daoUtil.free( );
-
-        return listNotifications;
     }
 
     /**

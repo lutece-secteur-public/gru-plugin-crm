@@ -38,12 +38,14 @@ import fr.paris.lutece.util.sql.DAOUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import jakarta.enterprise.context.ApplicationScoped;
 
 /**
  *
  * DemandStatusDAO
  *
  */
+@ApplicationScoped
 public class DemandStatusCRMDAO implements IDemandStatusCRMDAO
 {
     private static final String SQL_QUERY_SELECT_ALL = " SELECT id_status_crm, status_label FROM crm_status_crm ";
@@ -54,23 +56,23 @@ public class DemandStatusCRMDAO implements IDemandStatusCRMDAO
      */
     public DemandStatusCRM load( int nIdStatusCRM, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT, plugin );
-        daoUtil.setInt( 1, nIdStatusCRM );
-        daoUtil.executeQuery( );
-
-        DemandStatusCRM statusCRM = null;
-
-        if ( daoUtil.next( ) )
+        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT, plugin ) )
         {
-            int nIndex = 1;
-            statusCRM = new DemandStatusCRM( );
-            statusCRM.setIdStatusCRM( nIndex++ );
-            statusCRM.setLabelKey( daoUtil.getString( nIndex++ ) );
+            daoUtil.setInt( 1, nIdStatusCRM );
+            daoUtil.executeQuery( );
+
+            DemandStatusCRM statusCRM = null;
+
+            if ( daoUtil.next( ) )
+            {
+                int nIndex = 1;
+                statusCRM = new DemandStatusCRM( );
+                statusCRM.setIdStatusCRM( nIndex++ );
+                statusCRM.setLabelKey( daoUtil.getString( nIndex++ ) );
+            }
+
+            return statusCRM;
         }
-
-        daoUtil.free( );
-
-        return statusCRM;
     }
 
     /**
@@ -78,22 +80,22 @@ public class DemandStatusCRMDAO implements IDemandStatusCRMDAO
      */
     public List<DemandStatusCRM> selectAll( Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_ALL, plugin );
-        daoUtil.executeQuery( );
-
-        List<DemandStatusCRM> listStatusCRM = new ArrayList<DemandStatusCRM>( );
-
-        while ( daoUtil.next( ) )
+        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_ALL, plugin ) )
         {
-            int nIndex = 1;
-            DemandStatusCRM statusCRM = new DemandStatusCRM( );
-            statusCRM.setIdStatusCRM( daoUtil.getInt( nIndex++ ) );
-            statusCRM.setLabelKey( daoUtil.getString( nIndex++ ) );
-            listStatusCRM.add( statusCRM );
+            daoUtil.executeQuery( );
+
+            List<DemandStatusCRM> listStatusCRM = new ArrayList<DemandStatusCRM>( );
+
+            while ( daoUtil.next( ) )
+            {
+                int nIndex = 1;
+                DemandStatusCRM statusCRM = new DemandStatusCRM( );
+                statusCRM.setIdStatusCRM( daoUtil.getInt( nIndex++ ) );
+                statusCRM.setLabelKey( daoUtil.getString( nIndex++ ) );
+                listStatusCRM.add( statusCRM );
+            }
+
+            return listStatusCRM;
         }
-
-        daoUtil.free( );
-
-        return listStatusCRM;
     }
 }

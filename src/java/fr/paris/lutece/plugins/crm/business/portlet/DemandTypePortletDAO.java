@@ -35,10 +35,12 @@ package fr.paris.lutece.plugins.crm.business.portlet;
 
 import fr.paris.lutece.portal.business.portlet.Portlet;
 import fr.paris.lutece.util.sql.DAOUtil;
+import jakarta.enterprise.context.ApplicationScoped;
 
 /**
  * This class provides Data Access methods for DemandTypePortlet objects
  */
+@ApplicationScoped
 public final class DemandTypePortletDAO implements IDemandTypePortletDAO
 {
     private static final String SQL_QUERY_INSERT = "INSERT INTO crm_demand_type_portlet ( id_portlet , id_category ) VALUES ( ? , ? )";
@@ -58,12 +60,13 @@ public final class DemandTypePortletDAO implements IDemandTypePortletDAO
     {
         DemandTypePortlet p = (DemandTypePortlet) portlet;
 
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT );
-        daoUtil.setInt( 1, p.getId( ) );
-        daoUtil.setInt( 2, p.getIdCategory( ) );
+        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT ) )
+        {
+            daoUtil.setInt( 1, p.getId( ) );
+            daoUtil.setInt( 2, p.getIdCategory( ) );
 
-        daoUtil.executeUpdate( );
-        daoUtil.free( );
+            daoUtil.executeUpdate( );
+        }
     }
 
     /**
@@ -72,10 +75,11 @@ public final class DemandTypePortletDAO implements IDemandTypePortletDAO
     @Override
     public void delete( int nPortletId )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE );
-        daoUtil.setInt( 1, nPortletId );
-        daoUtil.executeUpdate( );
-        daoUtil.free( );
+        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE ) )
+        {
+            daoUtil.setInt( 1, nPortletId );
+            daoUtil.executeUpdate( );
+        }
     }
 
     /**
@@ -84,21 +88,21 @@ public final class DemandTypePortletDAO implements IDemandTypePortletDAO
     @Override
     public Portlet load( int nPortletId )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT );
-        daoUtil.setInt( 1, nPortletId );
-        daoUtil.executeQuery( );
-
-        DemandTypePortlet portlet = new DemandTypePortlet( );
-
-        if ( daoUtil.next( ) )
+        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT ) )
         {
-            portlet.setId( daoUtil.getInt( 1 ) );
-            portlet.setIdCategory( daoUtil.getInt( 2 ) );
+            daoUtil.setInt( 1, nPortletId );
+            daoUtil.executeQuery( );
+
+            DemandTypePortlet portlet = new DemandTypePortlet( );
+
+            if ( daoUtil.next( ) )
+            {
+                portlet.setId( daoUtil.getInt( 1 ) );
+                portlet.setIdCategory( daoUtil.getInt( 2 ) );
+            }
+
+            return portlet;
         }
-
-        daoUtil.free( );
-
-        return portlet;
     }
 
     /**
@@ -108,18 +112,18 @@ public final class DemandTypePortletDAO implements IDemandTypePortletDAO
     public int selectCountPortletByIdCategory( int nIdCategory )
     {
         int nCountPortlet = 0;
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_COUNT_PORTLET_BY_ID_CATEGORY );
-        daoUtil.setInt( 1, nIdCategory );
-        daoUtil.executeQuery( );
-
-        if ( daoUtil.next( ) )
+        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_COUNT_PORTLET_BY_ID_CATEGORY ) )
         {
-            nCountPortlet = daoUtil.getInt( 1 );
+            daoUtil.setInt( 1, nIdCategory );
+            daoUtil.executeQuery( );
+
+            if ( daoUtil.next( ) )
+            {
+                nCountPortlet = daoUtil.getInt( 1 );
+            }
+
+            return nCountPortlet;
         }
-
-        daoUtil.free( );
-
-        return nCountPortlet;
     }
 
     /**
@@ -129,11 +133,12 @@ public final class DemandTypePortletDAO implements IDemandTypePortletDAO
     public void store( Portlet portlet )
     {
         DemandTypePortlet p = (DemandTypePortlet) portlet;
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE );
-        daoUtil.setInt( 1, p.getId( ) );
-        daoUtil.setInt( 2, p.getIdCategory( ) );
-        daoUtil.setInt( 3, p.getId( ) );
-        daoUtil.executeUpdate( );
-        daoUtil.free( );
+        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE ) )
+        {
+            daoUtil.setInt( 1, p.getId( ) );
+            daoUtil.setInt( 2, p.getIdCategory( ) );
+            daoUtil.setInt( 3, p.getId( ) );
+            daoUtil.executeUpdate( );
+        }
     }
 }

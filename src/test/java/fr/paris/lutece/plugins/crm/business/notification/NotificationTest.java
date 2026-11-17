@@ -34,6 +34,8 @@
 package fr.paris.lutece.plugins.crm.business.notification;
 
 import fr.paris.lutece.test.LuteceTestCase;
+
+import org.junit.jupiter.api.Test;
 import fr.paris.lutece.util.date.DateUtil;
 
 import java.sql.Timestamp;
@@ -64,6 +66,7 @@ public class NotificationTest extends LuteceTestCase
     /**
      * Test business of class fr.paris.lutece.plugins.crm.business.notification.Notification
      */
+    @Test
     public void testBusiness( )
     {
         // Initialize an object

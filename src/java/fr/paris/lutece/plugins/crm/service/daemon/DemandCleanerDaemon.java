@@ -47,6 +47,8 @@ import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
+import jakarta.enterprise.inject.spi.CDI;
+
 /**
  *
  * Daemon DemandCleanerDaemon
@@ -54,6 +56,9 @@ import java.util.GregorianCalendar;
  */
 public class DemandCleanerDaemon extends Daemon
 {
+    private final DemandTypeService _demandTypeService = CDI.current( ).select( DemandTypeService.class ).get( );
+    private final DemandService _demandService = CDI.current( ).select( DemandService.class ).get( );
+
     /**
      * Daemon's treatment method
      */
@@ -68,21 +73,21 @@ public class DemandCleanerDaemon extends Daemon
         dtFilter.setDateEnd( calendar.getTime( ) );
         dtFilter.setOperatorDateEnd( OperatorEnum.LOWER_OR_EQUAL );
 
-        for ( DemandType demandType : DemandTypeService.getService( ).findByFilter( dtFilter ) )
+        for ( DemandType demandType : _demandTypeService.findByFilter( dtFilter ) )
         {
             DemandFilter dFilter = new DemandFilter( );
             dFilter.setIdDemandType( demandType.getIdDemandType( ) );
             // Only removing the demand that has the status draft
             dFilter.setIdStatusCRM( 0 );
 
-            for ( Demand demand : DemandService.getService( ).findByFilter( dFilter ) )
+            for ( Demand demand : _demandService.findByFilter( dFilter ) )
             {
-                DemandService.getService( ).removeWithItsResource( demand.getIdDemand( ), true );
+                _demandService.removeWithItsResource( demand.getIdDemand( ), true );
             }
         }
 
         // Clean demand types that have not a date end : use the modification date of the demands
-        for ( DemandType demandType : DemandTypeService.getService( ).findNoDateEndDemandTypes( ) )
+        for ( DemandType demandType : _demandTypeService.findNoDateEndDemandTypes( ) )
         {
             DemandFilter dFilter = new DemandFilter( );
             dFilter.setIdDemandType( demandType.getIdDemandType( ) );
@@ -91,9 +96,9 @@ public class DemandCleanerDaemon extends Daemon
             dFilter.setDateModification( calendar.getTime( ) );
             dFilter.setOperatorDateModification( OperatorEnum.LOWER_OR_EQUAL );
 
-            for ( Demand demand : DemandService.getService( ).findByFilter( dFilter ) )
+            for ( Demand demand : _demandService.findByFilter( dFilter ) )
             {
-                DemandService.getService( ).removeWithItsResource( demand.getIdDemand( ), true );
+                _demandService.removeWithItsResource( demand.getIdDemand( ), true );
             }
         }
     }

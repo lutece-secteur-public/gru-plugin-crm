@@ -46,10 +46,9 @@ import fr.paris.lutece.plugins.crm.util.OperatorEnum;
 import fr.paris.lutece.plugins.crm.util.TargetEnum;
 import fr.paris.lutece.plugins.crm.util.constants.CRMConstants;
 import fr.paris.lutece.portal.business.role.RoleHome;
-import fr.paris.lutece.portal.service.role.RoleRemovalListenerService;
 import fr.paris.lutece.portal.service.security.SecurityService;
-import fr.paris.lutece.portal.service.spring.SpringContextService;
-import fr.paris.lutece.portal.service.workgroup.WorkgroupRemovalListenerService;
+import fr.paris.lutece.portal.service.util.BeanUtils;
+import fr.paris.lutece.portal.service.util.RemovalListenerService;
 import fr.paris.lutece.util.ReferenceItem;
 import fr.paris.lutece.util.ReferenceList;
 
@@ -62,16 +61,43 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Initialized;
+import jakarta.enterprise.event.Observes;
+import jakarta.enterprise.inject.spi.CDI;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  *
  * DemandTypeService
  *
  */
+@ApplicationScoped
 public class DemandTypeService
 {
-    private static final String BEAN_CRM_DEMANDTYPESERVICE = "crm.demandTypeService";
+    @Inject
+    @Named( BeanUtils.BEAN_WORKGROUP_REMOVAL_SERVICE )
+    private RemovalListenerService _workgroupRemovalService;
+
+    @Inject
+    @Named( BeanUtils.BEAN_ROLE_REMOVAL_SERVICE )
+    private RemovalListenerService _roleRemovalService;
+
+    @Inject
+    @Named( CategoryRemovalListenerService.BEAN_NAME )
+    private RemovalListenerService _categoryRemovalService;
+
+    @Inject
+    private CategoryService _categoryService;
+
+    @Inject
+    private DemandService _demandService;
+
+    @Inject
+    private CRMDemandTypeRemovalListenerService _demandTypeRemovalListenerService;
 
     /**
      * Constructor
@@ -84,20 +110,25 @@ public class DemandTypeService
      * Get the instance of {@link DemandTypeService}
      * 
      * @return the instance of {@link DemandTypeService}
+     * @deprecated since 2.0.0, inject the bean instead of this static accessor
      */
+    @Deprecated( since = "2.0.0", forRemoval = true )
     public static DemandTypeService getService( )
     {
-        return SpringContextService.getBean( BEAN_CRM_DEMANDTYPESERVICE );
+        return CDI.current( ).select( DemandTypeService.class ).get( );
     }
 
     /**
-     * Initialize the service
+     * Registers the removal listeners when the application starts
+     * 
+     * @param context
+     *            the servlet context
      */
-    public static void init( )
+    public void initializedService( @Observes @Initialized( ApplicationScoped.class ) ServletContext context )
     {
-        CategoryRemovalListenerService.getService( ).registerListener( new DemandTypeCategoryRemovalListener( ) );
-        WorkgroupRemovalListenerService.getService( ).registerListener( new DemandTypeWorkgroupRemovalListener( ) );
-        RoleRemovalListenerService.getService( ).registerListener( new DemandTypeRoleRemovalListener( ) );
+        _categoryRemovalService.registerListener( new DemandTypeCategoryRemovalListener( ) );
+        _workgroupRemovalService.registerListener( new DemandTypeWorkgroupRemovalListener( ) );
+        _roleRemovalService.registerListener( new DemandTypeRoleRemovalListener( ) );
     }
 
     // CRUD
@@ -164,8 +195,8 @@ public class DemandTypeService
     {
         // Remove all demands associated to the demand type
         DemandType demandType = findByPrimaryKey( nIdDemandType );
-        CRMDemandTypeRemovalListenerService.getService( ).notifyListeners( demandType, CRMConstants.EVENT_CRM_DEMAND_TYPE_REMOVED );
-        DemandService.getService( ).removeByIdDemandType( nIdDemandType );
+        _demandTypeRemovalListenerService.notifyListeners( demandType, CRMConstants.EVENT_CRM_DEMAND_TYPE_REMOVED );
+        _demandService.removeByIdDemandType( nIdDemandType );
         DemandTypeHome.remove( nIdDemandType );
     }
 
@@ -274,7 +305,7 @@ public class DemandTypeService
     {
         Map<String, List<DemandType>> map = new HashMap<String, List<DemandType>>( );
 
-        ReferenceList refListCategories = CategoryService.getService( ).getCategories( request.getLocale( ), false, true );
+        ReferenceList refListCategories = _categoryService.getCategories( request.getLocale( ), false, true );
         if ( !CollectionUtils.isEmpty( refListCategories ) )
         {
             for ( ReferenceItem category : refListCategories )

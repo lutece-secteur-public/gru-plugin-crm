@@ -1,40 +1,32 @@
-<div class="col-sm-12 col-md-12">
-	<div class="row">
-		<form class="form-horizontal" action="jsp/site/Portal.jsp" method="post">
-			<input type="hidden" name="page" value="crm" />
-			<input type="hidden" name="action" value="do_modify_crm_user" />
-			<div class="form-group">
-				<label class="control-label col-sm-2 col-md-2" for="user.name.given">#i18n{crm.modify_crm_user.labelFirstName} : </label>
-				<div class="col-sm-3 col-md-3">
-					<input type="text" class="form-control" name="user.name.given" size="50" maxlength="255" value="${crm_user.getUserAttributeValue('user.name.given')}" />
-				</div>
-			</div>
-			<div class="form-group">
-				<label class="control-label col-sm-2 col-md-2" for="user.name.family">#i18n{crm.modify_crm_user.labelLastName} : </label>
-				<div class="col-sm-3 col-md-3">
-					<input type="text" class="form-control" name="user.name.family" size="50" maxlength="255" value="${crm_user.getUserAttributeValue('user.name.family')}" />
-				</div>
-			</div>
-			<div class="form-group">
-				<label class="control-label col-sm-2 col-md-2" for="user.business-info.online.email">#i18n{crm.modify_crm_user.labelEmail} : </label>
-				<div class="col-sm-3 col-md-3">
-					<input type="text" class="form-control" name="user.business-info.online.email" size="50" maxlength="255" value="${crm_user.getUserAttributeValue('user.business-info.online.email')}" />
-				</div>
-			</div>
-			<div class="form-group">
-				<label class="control-label col-sm-2 col-md-2" for="user.business-info.telecom.telephone.number">#i18n{crm.modify_crm_user.labelPhoneNumber} : </label>
-				<div class="col-sm-3 col-md-3">
-					<input type="text" class="form-control" name="user.business-info.telecom.telephone.number" size="10" maxlength="100" value="${crm_user.getUserAttributeValue('user.business-info.telecom.telephone.number')}" />
-				</div>
-			</div>
-			<div class="form-actions col-sm-offset-2 col-md-offset-2">
-			<a class="btn btn-primary btn-sm" href="jsp/site/Portal.jsp?page=crm" title="#i18n{crm.modify_crm_user.buttonBack}">
-			#i18n{crm.modify_crm_user.buttonBack}
-			</a>
-				<button type="submit" class="btn btn-primary btn-sm" value="#i18n{portal.util.labelModify}" >
-					#i18n{portal.util.labelModify}
-				</button>
-			</div>
-		</form>
-	</div>
-</div>
+<@cTpl>
+<@cContainer>
+<@cRow>
+	<@cCol>
+		<@cTitle level=2>#i18n{crm.modify_crm_user.pageTitle}</@cTitle>
+		<@cForm action='jsp/site/Portal.jsp' method='post'>
+			<@cInput type='hidden' name='page' value='crm' />
+			<@cInput type='hidden' name='action' value='do_modify_crm_user' />
+			<@cInput type='hidden' name='token' value='${token}' />
+			<@cField for='user.name.given' label='#i18n{crm.modify_crm_user.labelFirstName}'>
+				<@cInput type='text' name='user.name.given' id='user.name.given' maxlength=255 value='${(crm_user.getUserAttributeValue("user.name.given"))!}' />
+			</@cField>
+			<@cField for='user.name.family' label='#i18n{crm.modify_crm_user.labelLastName}'>
+				<@cInput type='text' name='user.name.family' id='user.name.family' maxlength=255 value='${(crm_user.getUserAttributeValue("user.name.family"))!}' />
+			</@cField>
+			<@cField for='user.business-info.online.email' label='#i18n{crm.modify_crm_user.labelEmail}'>
+				<@cInput type='text' name='user.business-info.online.email' id='user.business-info.online.email' maxlength=255 value='${(crm_user.getUserAttributeValue("user.business-info.online.email"))!}' />
+			</@cField>
+			<@cField for='user.business-info.telecom.telephone.number' label='#i18n{crm.modify_crm_user.labelPhoneNumber}'>
+				<@cInput type='text' name='user.business-info.telecom.telephone.number' id='user.business-info.telecom.telephone.number' maxlength=100 value='${(crm_user.getUserAttributeValue("user.business-info.telecom.telephone.number"))!}' />
+			</@cField>
+			<@cRow>
+				<@cCol>
+					<@cBtn href='jsp/site/Portal.jsp?page=crm' class='secondary' label='#i18n{crm.modify_crm_user.buttonBack}' />
+					<@cBtn type='submit' label='#i18n{portal.util.labelModify}' />
+				</@cCol>
+			</@cRow>
+		</@cForm>
+	</@cCol>
+</@cRow>
+</@cContainer>
+</@cTpl>

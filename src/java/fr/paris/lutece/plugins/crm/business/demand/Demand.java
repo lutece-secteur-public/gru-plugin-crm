@@ -35,6 +35,8 @@ package fr.paris.lutece.plugins.crm.business.demand;
 
 import fr.paris.lutece.plugins.crm.service.notification.NotificationService;
 
+import jakarta.enterprise.inject.spi.CDI;
+
 import java.sql.Timestamp;
 
 /**
@@ -165,7 +167,7 @@ public class Demand
      */
     public int getNumberUnreadNotifications( )
     {
-        return NotificationService.getService( ).getNumberUnreadNotifications( _nIdDemand );
+        return CDI.current( ).select( NotificationService.class ).get( ).getNumberUnreadNotifications( _nIdDemand );
     }
 
     /**
@@ -175,7 +177,7 @@ public class Demand
      */
     public int getNumberNotifications( )
     {
-        return NotificationService.getService( ).getNumberNotifications( _nIdDemand );
+        return CDI.current( ).select( NotificationService.class ).get( ).getNumberNotifications( _nIdDemand );
     }
 
     /**

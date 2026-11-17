@@ -1,6 +1,7 @@
 -- liquibase formatted sql
 -- changeset crm:update_db_crm-1.0.5-1.0.6.sql
 -- preconditions onFail:MARK_RAN onError:WARN
+-- precondition-sql-check expectedResult:3 SELECT COUNT(1) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA=database() AND TABLE_NAME IN ('core_style_mode_stylesheet','core_stylesheet','core_style')
 --
 -- Table structure for table crm_demand_type_portlet
 --
@@ -45,4 +46,15 @@ ALTER TABLE crm_demand_type ADD COLUMN is_need_authentication SMALLINT DEFAULT 0
 --
 
 ALTER TABLE crm_demand_type ADD COLUMN is_need_validation SMALLINT DEFAULT 0 NOT NULL;
-	
+
+-- changeset crm:update_db_crm-1.0.5-1.0.6-rev1.sql
+-- preconditions onFail:MARK_RAN onError:WARN
+-- precondition-sql-check expectedResult:0 SELECT COUNT(1) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=database() AND TABLE_NAME='crm_demand_type' AND COLUMN_NAME='is_include_id_user'
+CREATE TABLE IF NOT EXISTS crm_demand_type_portlet(
+	id_portlet int NOT NULL,
+	id_category int NOT NULL,
+	PRIMARY KEY (id_portlet,id_category)
+);
+ALTER TABLE crm_demand_type ADD COLUMN is_include_id_user SMALLINT DEFAULT 0 NOT NULL;
+ALTER TABLE crm_demand_type ADD COLUMN is_need_authentication SMALLINT DEFAULT 0 NOT NULL;
+ALTER TABLE crm_demand_type ADD COLUMN is_need_validation SMALLINT DEFAULT 0 NOT NULL;

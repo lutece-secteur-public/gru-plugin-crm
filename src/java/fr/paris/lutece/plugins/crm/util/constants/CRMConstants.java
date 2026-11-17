@@ -186,11 +186,13 @@ public final class CRMConstants
     public static final String MESSAGE_CONFIRM_REMOVE_DEMAND_TYPE = "crm.message.confirmRemoveDemandType";
     public static final String MESSAGE_CONFIRM_PURGE_DEMAND_TYPE = "crm.message.confirmPurgeDemandType";
     public static final String MESSAGE_ERROR = "crm.message.error";
+    public static final String MESSAGE_INVALID_TOKEN = "crm.message.invalidToken";
     public static final String MESSAGE_CONFIRM_REMOVE_CATEGORY = "crm.message.confirmRemoveCategory";
     public static final String MESSAGE_CANNOT_REMOVE_CATEGORY = "crm.message.cannotRemoveCategory";
     public static final String MESSAGE_SIZE_TOO_BIG = "crm.message.sizeTooBig";
     public static final String MESSAGE_INVALID_EMAIL = "crm.message.invalidEmail";
     public static final String MESSAGE_EMAIL_ALREADY_IN_USE = "crm.message.emailAlreadyInUse";
+    public static final String MESSAGE_CATEGORY_CODE_ALREADY_EXISTS = "crm.message.categoryCodeAlreadyExists";
     public static final String MESSAGE_INVALID_FORMAT_DATE_MODIFICATION = "crm.message.invalidFormatDateModification";
 
     // SORTS

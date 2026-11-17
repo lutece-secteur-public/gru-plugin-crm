@@ -42,11 +42,15 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.List;
 import java.util.Locale;
 
+import jakarta.enterprise.inject.spi.CDI;
+
 /**
  * DemandTypeWorkgroupRemovalListener
  */
 public class DemandTypeWorkgroupRemovalListener implements RemovalListener
 {
+    private final DemandTypeService _demandTypeService = CDI.current( ).select( DemandTypeService.class ).get( );
+
     private static final String PROPERTY_WORKGROUP_CANNOT_BE_REMOVED = "crm.message.workgroupCannotBeRemoved";
 
     /**
@@ -65,7 +69,7 @@ public class DemandTypeWorkgroupRemovalListener implements RemovalListener
             DemandTypeFilter dtFilter = new DemandTypeFilter( );
             dtFilter.setWorkgroup( strId );
 
-            List<DemandType> listDemandTypes = DemandTypeService.getService( ).findByFilter( dtFilter );
+            List<DemandType> listDemandTypes = _demandTypeService.findByFilter( dtFilter );
 
             if ( ( listDemandTypes != null ) && ( listDemandTypes.size( ) > 0 ) )
             {

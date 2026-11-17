@@ -31,43 +31,32 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.crm;
+package fr.paris.lutece.plugins.crm.service.category;
 
-import fr.paris.lutece.plugins.crm.business.demand.DemandStatusCRMTest;
-import fr.paris.lutece.plugins.crm.business.demand.DemandTest;
-import fr.paris.lutece.plugins.crm.business.demand.DemandTypeTest;
-import fr.paris.lutece.plugins.crm.business.demand.category.CategoryTest;
-import fr.paris.lutece.plugins.crm.business.notification.NotificationTest;
-import fr.paris.lutece.plugins.crm.business.user.CRMUserTest;
-import fr.paris.lutece.plugins.crm.service.CRMServiceTest;
+import fr.paris.lutece.portal.service.util.RemovalListenerService;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Produces;
+import jakarta.inject.Named;
 
 /**
- * This class is the main test suite for the package fr.paris.lutece.plugins.crm
+ *
+ * CategoryRemovalServiceProducer
+ *
  */
-public final class AllTests
+@ApplicationScoped
+public class CategoryRemovalServiceProducer
 {
     /**
-     * A set of tests
+     * Produces the removal listener service of the categories
      * 
-     * @return Test the tests
+     * @return the removal listener service
      */
-    public static Test suite( )
+    @Produces
+    @ApplicationScoped
+    @Named( CategoryRemovalListenerService.BEAN_NAME )
+    public RemovalListenerService produceCategoryRemovalService( )
     {
-        TestSuite suite = new TestSuite( "*** Tests Plugin CRM " );
-
-        // $JUnit-BEGIN$
-        suite.addTest( new TestSuite( CategoryTest.class ) );
-        suite.addTest( new TestSuite( DemandStatusCRMTest.class ) );
-        suite.addTest( new TestSuite( DemandTest.class ) );
-        suite.addTest( new TestSuite( DemandTypeTest.class ) );
-        suite.addTest( new TestSuite( NotificationTest.class ) );
-        suite.addTest( new TestSuite( CRMUserTest.class ) );
-        suite.addTest( new TestSuite( CRMServiceTest.class ) );
-
-        // $JUnit-END$
-        return suite;
+        return new RemovalListenerService( );
     }
 }

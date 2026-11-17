@@ -35,23 +35,31 @@ package fr.paris.lutece.plugins.crm.service.demand;
 
 import fr.paris.lutece.plugins.crm.service.signrequest.CRMRequestAuthenticatorService;
 import fr.paris.lutece.plugins.crm.util.constants.CRMConstants;
-import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.util.httpaccess.HttpAccess;
 import fr.paris.lutece.util.httpaccess.HttpAccessException;
+import fr.paris.lutece.util.signrequest.RequestAuthenticator;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.spi.CDI;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+
 /**
  *
  * DemandWebService
  *
  */
+@ApplicationScoped
 public class DemandWebService
 {
-    private static final String BEAN_CRM_DEMANDWEBSERVICE = "crm.demandWebService";
+    @Inject
+    @Named( CRMRequestAuthenticatorService.BEAN_CRM_REQUESTAUTHENTICATOR_FOR_WS )
+    private RequestAuthenticator _requestAuthenticatorForWS;
 
     /**
      * Constructor
@@ -64,10 +72,12 @@ public class DemandWebService
      * Get an instance of {@link DemandWebService}
      * 
      * @return an instance of {@link DemandWebService}
+     * @deprecated since 2.0.0, inject the bean instead of this static accessor
      */
+    @Deprecated( since = "2.0.0", forRemoval = true )
     public static DemandWebService getService( )
     {
-        return SpringContextService.getBean( BEAN_CRM_DEMANDWEBSERVICE );
+        return CDI.current( ).select( DemandWebService.class ).get( );
     }
 
     /**
@@ -95,6 +105,6 @@ public class DemandWebService
         listElements.add( Integer.toString( nIdDemand ) );
 
         HttpAccess httpAccess = new HttpAccess( );
-        httpAccess.doPost( strUrl, params, CRMRequestAuthenticatorService.getRequestAuthenticatorForWS( ), listElements );
+        httpAccess.doPost( strUrl, params, _requestAuthenticatorForWS, listElements );
     }
 }

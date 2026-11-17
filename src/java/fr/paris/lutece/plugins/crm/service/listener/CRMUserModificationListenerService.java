@@ -35,25 +35,26 @@ package fr.paris.lutece.plugins.crm.service.listener;
 
 import fr.paris.lutece.plugins.crm.business.user.CRMUser;
 import fr.paris.lutece.plugins.crm.util.IListener;
-import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.RemovalListenerService;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.spi.CDI;
+
 /**
  * Service to manage listeners of modifications on CRMUsers objects
  */
+@ApplicationScoped
 public class CRMUserModificationListenerService extends RemovalListenerService
 {
-    private static final String BEAN_NAME = "crm.crmUserListenerService";
-    private static CRMUserModificationListenerService _instance;
     private List<IListener<CRMUser>> _listRegisteredListeners = new ArrayList<IListener<CRMUser>>( );
 
     /**
-     * Private constructor
+     * Constructor
      */
-    private CRMUserModificationListenerService( )
+    protected CRMUserModificationListenerService( )
     {
     }
 
@@ -61,15 +62,12 @@ public class CRMUserModificationListenerService extends RemovalListenerService
      * Get the instance of the service
      * 
      * @return The instance of the service
+     * @deprecated since 2.0.0, inject the bean instead of this static accessor
      */
+    @Deprecated( since = "2.0.0", forRemoval = true )
     public static CRMUserModificationListenerService getService( )
     {
-        if ( _instance == null )
-        {
-            _instance = SpringContextService.getBean( BEAN_NAME );
-        }
-
-        return _instance;
+        return CDI.current( ).select( CRMUserModificationListenerService.class ).get( );
     }
 
     /**

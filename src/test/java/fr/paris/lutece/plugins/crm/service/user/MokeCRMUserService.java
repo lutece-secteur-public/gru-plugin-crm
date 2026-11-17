@@ -38,11 +38,14 @@ import fr.paris.lutece.plugins.crm.business.user.MokeCRMUser;
 
 import java.util.Map.Entry;
 
+import jakarta.enterprise.inject.Vetoed;
+
 /**
  *
  * MokeCRMUserService
  *
  */
+@Vetoed
 public class MokeCRMUserService extends CRMUserService
 {
     private static final int ID_CRM_USER1 = 1;
