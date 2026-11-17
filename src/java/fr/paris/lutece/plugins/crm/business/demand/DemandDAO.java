@@ -43,12 +43,14 @@ import java.text.SimpleDateFormat;
 
 import java.util.ArrayList;
 import java.util.List;
+import jakarta.enterprise.context.ApplicationScoped;
 
 /**
  *
  * DemandDAO
  *
  */
+@ApplicationScoped
 public class DemandDAO implements IDemandDAO
 {
     private static final String SQL_QUERY_NEW_PK = " SELECT max( id_demand ) FROM crm_demand ";

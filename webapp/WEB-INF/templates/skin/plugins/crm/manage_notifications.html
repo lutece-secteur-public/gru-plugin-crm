@@ -1,42 +1,35 @@
-<div class="col-sm-11 col-md-11">
-	<div class="row">
-		<a class="btn btn-primary btn-sm" href="jsp/site/Portal.jsp?page=crm" title="#i18n{crm.manage_notifications.buttonBack}">
-			#i18n{crm.manage_notifications.buttonBack}
-		</a>
-	</div>
-	<div class="row">
-		<h2><#if demand_type?? && demand_type != "?">${demand_type.label!''}</#if></h2>
+<@cTpl>
+<@cContainer>
+<@cRow>
+	<@cCol>
+		<@cBtn href='jsp/site/Portal.jsp?page=crm' class='secondary btn-sm' label='#i18n{crm.manage_notifications.buttonBack}' />
+		<@cTitle level=2><#if demand_type??>${demand_type.label!}</#if></@cTitle>
 		<#if notifications_list?has_content>
-			<table class="table">
-				<tr>
-					<th>#i18n{crm.manage_notifications.labelSender}</th>
-					<th>#i18n{crm.manage_notifications.labelObject}</th>
-					<th>#i18n{crm.manage_notifications.labelReceived}</th>
-				</tr>
-				<#list notifications_list as notification>
-					<tr>
-						<td>
-							${notification.sender}
-						</td>
-						<td>
-							<a href="jsp/site/Portal.jsp?page=crm&amp;action=view_notification&amp;id_notification=${notification.idNotification}">
-								<#if notification.isRead(  )>
-									${notification.object}
-								<#else>
-									<b>
-										${notification.object}
-									</b>
-								</#if>
-							</a>
-						</td>
-						<td>
-							${notification.dateCreation?date}
-						</td>
-					</tr>
-				</#list>
-			</table>
+			<@cTable id='notifications' caption='#i18n{crm.manage_notifications.pageTitle}'>
+				<@cThead>
+					<@cTr>
+						<@cTh>#i18n{crm.manage_notifications.labelSender}</@cTh>
+						<@cTh>#i18n{crm.manage_notifications.labelObject}</@cTh>
+						<@cTh>#i18n{crm.manage_notifications.labelReceived}</@cTh>
+					</@cTr>
+				</@cThead>
+				<@cTbody>
+					<#list notifications_list as notification>
+						<#assign objectClass = notification.read?then( '', 'fw-bold' ) />
+						<@cTr>
+							<@cTd>${notification.sender!}</@cTd>
+							<@cTd>
+								<@cLink href='jsp/site/Portal.jsp?page=crm&action=view_notification&id_notification=${notification.idNotification}' label='${notification.object!}' class=objectClass />
+							</@cTd>
+							<@cTd>${notification.dateCreation?date}</@cTd>
+						</@cTr>
+					</#list>
+				</@cTbody>
+			</@cTable>
 		<#else>
-			<b>#i18n{crm.manage_notifications.messageNoNotifications}</b>
+			<@cAlert type='info' title='#i18n{crm.manage_notifications.messageNoNotifications}' />
 		</#if>
-	</div>
-</div>
+	</@cCol>
+</@cRow>
+</@cContainer>
+</@cTpl>

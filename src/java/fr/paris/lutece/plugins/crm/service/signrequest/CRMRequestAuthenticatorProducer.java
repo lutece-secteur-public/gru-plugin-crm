@@ -31,26 +31,47 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.crm.service;
+package fr.paris.lutece.plugins.crm.service.signrequest;
 
-import fr.paris.lutece.plugins.crm.service.demand.DemandTypeService;
-import fr.paris.lutece.portal.service.plugin.PluginDefaultImplementation;
+import fr.paris.lutece.util.signrequest.AbstractPrivateKeyAuthenticator;
+import fr.paris.lutece.util.signrequest.RequestAuthenticator;
+import fr.paris.lutece.util.signrequest.cdi.AbstractSignRequestAuthenticatorProducer;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Produces;
+import jakarta.inject.Named;
 
 /**
  *
- * CRMPlugin
+ * CRMRequestAuthenticatorProducer
  *
  */
-public class CRMPlugin extends PluginDefaultImplementation
+@ApplicationScoped
+public class CRMRequestAuthenticatorProducer extends AbstractSignRequestAuthenticatorProducer
 {
-    public static final String PLUGIN_NAME = "crm";
+    /**
+     * Produces the request authenticator of the web services
+     * 
+     * @return the request authenticator
+     */
+    @Produces
+    @ApplicationScoped
+    @Named( CRMRequestAuthenticatorService.BEAN_CRM_REQUESTAUTHENTICATOR_FOR_WS )
+    public RequestAuthenticator produceRequestAuthenticatorForWS( )
+    {
+        return produceRequestAuthenticator( CRMRequestAuthenticatorService.BEAN_CRM_REQUESTAUTHENTICATOR_FOR_WS );
+    }
 
     /**
-     * Initialize the CRMPlugin
+     * Produces the request authenticator of the signed urls
+     * 
+     * @return the request authenticator
      */
-    @Override
-    public void init( )
+    @Produces
+    @ApplicationScoped
+    @Named( CRMRequestAuthenticatorService.BEAN_CRM_REQUESTAUTHENTICATOR_FOR_URL )
+    public AbstractPrivateKeyAuthenticator produceRequestAuthenticatorForUrl( )
     {
-        DemandTypeService.init( );
+        return (AbstractPrivateKeyAuthenticator) produceRequestAuthenticator( CRMRequestAuthenticatorService.BEAN_CRM_REQUESTAUTHENTICATOR_FOR_URL );
     }
 }

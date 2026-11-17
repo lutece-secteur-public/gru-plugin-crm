@@ -35,6 +35,8 @@ package fr.paris.lutece.plugins.crm.business.demand;
 
 import fr.paris.lutece.test.LuteceTestCase;
 
+import org.junit.jupiter.api.Test;
+
 /**
  *
  * DemandStatusCRMTest
@@ -47,6 +49,7 @@ public class DemandStatusCRMTest extends LuteceTestCase
     /**
      * Test business of class fr.paris.lutece.plugins.crm.business.demand.DemandStatusCRM
      */
+    @Test
     public void testBusiness( )
     {
         // Test finders

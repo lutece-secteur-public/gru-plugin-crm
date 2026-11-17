@@ -35,18 +35,25 @@ package fr.paris.lutece.plugins.crm.service.security;
 
 import fr.paris.lutece.plugins.crm.business.user.CRMUser;
 import fr.paris.lutece.plugins.crm.service.user.CRMUserService;
-import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.portal.service.util.CryptoService;
 
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
 /**
  *
  * CRMUserAnonymizationService
  *
  */
+@ApplicationScoped
+@Named( CRMUserAnonymizationService.BEAN_SERVICE )
 public class CRMUserAnonymizationService implements IAnonymizationService
 {
     /** The Constant BEAN_SERVICE. */
@@ -58,17 +65,23 @@ public class CRMUserAnonymizationService implements IAnonymizationService
     // CONSTANTS
     private static final String CONSTANT_DEFAULT_ENCRYPT_ALGO = "SHA-256";
 
+    @Inject
+    private CRMUserService _crmUserService;
+    @Inject
+    @ConfigProperty( name = PROPERTY_ANONYMIZATION_ENCRYPT_ALGO, defaultValue = CONSTANT_DEFAULT_ENCRYPT_ALGO )
+    private String _strEncryptAlgo;
+
     /**
      * {@inheritDoc}
      */
     @Override
     public void anonymizeUser( int nIdUser, Locale locale )
     {
-        CRMUser user = CRMUserService.getService( ).findByPrimaryKey( nIdUser );
+        CRMUser user = _crmUserService.findByPrimaryKey( nIdUser );
 
         if ( user != null )
         {
-            String strEncryptionAlgorithme = AppPropertiesService.getProperty( PROPERTY_ANONYMIZATION_ENCRYPT_ALGO, CONSTANT_DEFAULT_ENCRYPT_ALGO );
+            String strEncryptionAlgorithme = _strEncryptAlgo;
             user.setUserGuid( CryptoService.encrypt( user.getUserGuid( ), strEncryptionAlgorithme ) );
 
             Map<String, String> userInfos = user.getUserAttributes( );
@@ -80,7 +93,7 @@ public class CRMUserAnonymizationService implements IAnonymizationService
 
             user.setUserAttributes( userInfos );
             user.setStatus( CRMUser.STATUS_ANONYMIZED );
-            CRMUserService.getService( ).update( user );
+            _crmUserService.update( user );
         }
     }
 }

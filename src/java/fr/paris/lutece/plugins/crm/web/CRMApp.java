@@ -40,9 +40,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.enterprise.inject.spi.CDI;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import fr.paris.lutece.plugins.crm.business.demand.Demand;
 import fr.paris.lutece.plugins.crm.business.demand.DemandFilter;
@@ -52,7 +58,7 @@ import fr.paris.lutece.plugins.crm.business.demand.PaginationFilterSortManager;
 import fr.paris.lutece.plugins.crm.business.notification.Notification;
 import fr.paris.lutece.plugins.crm.business.notification.NotificationFilter;
 import fr.paris.lutece.plugins.crm.business.user.CRMUser;
-import fr.paris.lutece.plugins.crm.service.CRMPlugin;
+import fr.paris.lutece.plugins.crm.service.CRMService;
 import fr.paris.lutece.plugins.crm.service.category.CategoryService;
 import fr.paris.lutece.plugins.crm.service.demand.DemandService;
 import fr.paris.lutece.plugins.crm.service.demand.DemandStatusCRMService;
@@ -71,8 +77,10 @@ import fr.paris.lutece.portal.service.message.SiteMessageException;
 import fr.paris.lutece.portal.service.message.SiteMessageService;
 import fr.paris.lutece.portal.service.page.PageNotFoundException;
 import fr.paris.lutece.portal.service.plugin.Plugin;
+import fr.paris.lutece.portal.service.security.ISecurityTokenService;
 import fr.paris.lutece.portal.service.security.LuteceUser;
 import fr.paris.lutece.portal.service.security.SecurityService;
+import fr.paris.lutece.portal.service.security.SecurityTokenService;
 import fr.paris.lutece.portal.service.security.UserNotSignedException;
 import fr.paris.lutece.portal.service.template.AppTemplateService;
 import fr.paris.lutece.portal.service.util.AppPathService;
@@ -82,6 +90,7 @@ import fr.paris.lutece.portal.web.xpages.XPage;
 import fr.paris.lutece.portal.web.xpages.XPageApplication;
 import fr.paris.lutece.util.html.HtmlTemplate;
 import fr.paris.lutece.util.html.IPaginator;
+import fr.paris.lutece.util.signrequest.AbstractPrivateKeyAuthenticator;
 import fr.paris.lutece.util.string.StringUtil;
 import fr.paris.lutece.util.url.UrlItem;
 
@@ -90,6 +99,8 @@ import fr.paris.lutece.util.url.UrlItem;
  * CRMApp
  *
  */
+@RequestScoped
+@Named( "crm.xpage.crm" )
 public class CRMApp implements XPageApplication
 {
     // JSP
@@ -103,14 +114,32 @@ public class CRMApp implements XPageApplication
     private static final String TEMPLATE_MODIFY_CRM_USER = "skin/plugins/crm/modify_crm_user.html";
 
     // VARIABLES
-    private DemandTypeService _demandTypeService = DemandTypeService.getService( );
-    private DemandService _demandService = DemandService.getService( );
-    private CategoryService _categoryService = CategoryService.getService( );
-    private NotificationService _notificationService = NotificationService.getService( );
-    private DemandStatusCRMService _statusCRMService = DemandStatusCRMService.getService( );
-    private CRMUserService _crmUserService = CRMUserService.getService( );
-    private CRMUserAttributesService _crmUserAttributesService = CRMUserAttributesService.getService( );
-    private AdvancedParametersService _advancedParametersService = AdvancedParametersService.getService( );
+    @Inject
+    private DemandTypeService _demandTypeService;
+    @Inject
+    private DemandService _demandService;
+    @Inject
+    private CategoryService _categoryService;
+    @Inject
+    private NotificationService _notificationService;
+    @Inject
+    private DemandStatusCRMService _statusCRMService;
+    @Inject
+    private CRMUserService _crmUserService;
+    @Inject
+    private CRMUserAttributesService _crmUserAttributesService;
+    @Inject
+    private AdvancedParametersService _advancedParametersService;
+    @Inject
+    private CRMUserModificationListenerService _crmUserModificationListenerService;
+    @Inject
+    private ISecurityTokenService _securityTokenService;
+    @Inject
+    @Named( CRMRequestAuthenticatorService.BEAN_CRM_REQUESTAUTHENTICATOR_FOR_URL )
+    private AbstractPrivateKeyAuthenticator _requestAuthenticatorForUrl;
+    @Inject
+    @ConfigProperty( name = CRMConstants.PROPERTY_CRM_USER_MAX_SIZE, defaultValue = "255" )
+    private int _nCrmUserMaxSize;
     // PROPERTIE
     private static final String CRM_WEBB_APP_CODE_PROPERTY = "crm.webapp.code";
 
@@ -293,7 +322,7 @@ public class CRMApp implements XPageApplication
             Map<String, String> mapNbItemsPerPage = new HashMap<String, String>( );
             int nIdStatus;
 
-            for ( DemandStatusCRM statusCRM : DemandStatusCRMService.getService( ).getAllStatusCRM( request.getLocale( ) ) )
+            for ( DemandStatusCRM statusCRM : _statusCRMService.getAllStatusCRM( request.getLocale( ) ) )
             {
                 nIdStatus = statusCRM.getIdStatusCRM( );
 
@@ -451,6 +480,7 @@ public class CRMApp implements XPageApplication
 
             Map<String, Object> model = new HashMap<String, Object>( );
             model.put( CRMConstants.MARK_CRM_USER, crmUser );
+            model.put( SecurityTokenService.MARK_TOKEN, _securityTokenService.getToken( request, CRMConstants.ACTION_DO_MODIFY_CRM_USER ) );
 
             HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_MODIFY_CRM_USER, request.getLocale( ), model );
 
@@ -474,15 +504,20 @@ public class CRMApp implements XPageApplication
      */
     private void doModifyCRMUser( HttpServletRequest request, LuteceUser user ) throws SiteMessageException
     {
+        if ( !_securityTokenService.validate( request, CRMConstants.ACTION_DO_MODIFY_CRM_USER ) )
+        {
+            SiteMessageService.setMessage( request, CRMConstants.MESSAGE_INVALID_TOKEN, SiteMessage.TYPE_STOP );
+        }
+
         CRMUser crmUser = _crmUserService.findByUserGuid( user.getName( ) );
 
         if ( crmUser != null )
         {
             UrlItem url = new UrlItem( JSP_SITE + JSP_PORTAL );
-            url.addParameter( CRMConstants.PARAMETER_PAGE, CRMPlugin.PLUGIN_NAME );
+            url.addParameter( CRMConstants.PARAMETER_PAGE, CRMService.PLUGIN_NAME );
             url.addParameter( CRMConstants.PARAMETER_ACTION, CRMConstants.ACTION_MODIFY_CRM_USER );
 
-            int nMaxSize = AppPropertiesService.getPropertyInt( CRMConstants.PROPERTY_CRM_USER_MAX_SIZE, 255 );
+            int nMaxSize = _nCrmUserMaxSize;
 
             Map<String, String> userAttributes = new HashMap<String, String>( );
 
@@ -505,7 +540,7 @@ public class CRMApp implements XPageApplication
                         SiteMessageService.setMessage( request, CRMConstants.MESSAGE_INVALID_EMAIL, SiteMessage.TYPE_STOP, url.getUrl( ) );
                     }
                     // If the user changed one of his emails
-                    if ( !StringUtils.equals( crmUser.getUserAttributeValue( strUserAttributeKey ), strUserAttributeValue ) )
+                    if ( !Strings.CS.equals( crmUser.getUserAttributeValue( strUserAttributeKey ), strUserAttributeValue ) )
                     {
                         if ( _crmUserAttributesService.isAttributeValueInUse( strUserAttributeValue, strUserAttributeKey ) )
                         {
@@ -520,7 +555,7 @@ public class CRMApp implements XPageApplication
             crmUser.setUserAttributes( userAttributes );
 
             _crmUserService.update( crmUser );
-            CRMUserModificationListenerService.getService( ).notifyListeners( crmUser, CRMConstants.EVENT_CRM_USER_MODIFIED );
+            _crmUserModificationListenerService.notifyListeners( crmUser, CRMConstants.EVENT_CRM_USER_MODIFIED );
         }
     }
 
@@ -562,7 +597,7 @@ public class CRMApp implements XPageApplication
                     }
 
                     String strTimestamp = Long.toString( new Date( ).getTime( ) );
-                    String strSignature = CRMRequestAuthenticatorService.getRequestAuthenticatorForUrl( ).buildSignature( listElements, strTimestamp );
+                    String strSignature = _requestAuthenticatorForUrl.buildSignature( listElements, strTimestamp );
 
                     StringBuilder sbUrlReturn = new StringBuilder( AppPathService.getBaseUrl( request ) );
 
@@ -574,7 +609,7 @@ public class CRMApp implements XPageApplication
                     sbUrlReturn.append( JSP_SITE + JSP_PORTAL );
 
                     UrlItem urlReturn = new UrlItem( sbUrlReturn.toString( ) );
-                    urlReturn.addParameter( CRMConstants.PARAMETER_PAGE, CRMPlugin.PLUGIN_NAME );
+                    urlReturn.addParameter( CRMConstants.PARAMETER_PAGE, CRMService.PLUGIN_NAME );
 
                     UrlItem url = new UrlItem( demandType.getUrlResource( ) );
                     url.addParameter( CRMConstants.PARAMETER_ACTION, CRMConstants.ACTION_REMOVE_DRAFT );
@@ -647,8 +682,10 @@ public class CRMApp implements XPageApplication
      *            the HTTP request
      * @return the resource url of the demand type
      */
-    public String doOpenDemandType( HttpServletRequest request )
+    public static String doOpenDemandType( HttpServletRequest request )
     {
+        DemandTypeService demandTypeService = CDI.current( ).select( DemandTypeService.class ).get( );
+        CRMUserService crmUserService = CDI.current( ).select( CRMUserService.class ).get( );
         String strUrl = AppPathService.getBaseUrl( request );
         LuteceUser user;
         String strWebAppCode = AppPropertiesService.getProperty( CRM_WEBB_APP_CODE_PROPERTY );
@@ -662,7 +699,7 @@ public class CRMApp implements XPageApplication
             {
 
                 int nIdDemandType = Integer.parseInt( strIdDemandType );
-                DemandType demandType = _demandTypeService.findByPrimaryKey( nIdDemandType );
+                DemandType demandType = demandTypeService.findByPrimaryKey( nIdDemandType );
 
                 if ( ( demandType != null ) && demandType.isOpen( ) )
                 {
@@ -670,14 +707,14 @@ public class CRMApp implements XPageApplication
                     if ( demandType.isIncludeIdCrmUser( ) )
                     {
                         user = getUser( request );
-                        crmUser = _crmUserService.findByUserGuid( user.getName( ) );
+                        crmUser = crmUserService.findByUserGuid( user.getName( ) );
                         // if crm user does not exist create crm user
                         if ( user != null && crmUser == null )
                         {
                             crmUser = new CRMUser( );
                             crmUser.setUserGuid( user.getName( ) );
                             crmUser.setMustBeUpdated( true );
-                            crmUser.setIdCRMUser( _crmUserService.create( crmUser ) );
+                            crmUser.setIdCRMUser( crmUserService.create( crmUser ) );
                         }
 
                     }
@@ -732,8 +769,11 @@ public class CRMApp implements XPageApplication
      *            the HTTP request
      * @return the url resource to edit the resource
      */
-    public String doEditDemand( HttpServletRequest request )
+    public static String doEditDemand( HttpServletRequest request )
     {
+        DemandTypeService demandTypeService = CDI.current( ).select( DemandTypeService.class ).get( );
+        CRMUserService crmUserService = CDI.current( ).select( CRMUserService.class ).get( );
+        DemandService demandService = CDI.current( ).select( DemandService.class ).get( );
         String strUrl = AppPathService.getBaseUrl( request );
         LuteceUser user;
         String strWebAppCode = AppPropertiesService.getProperty( CRM_WEBB_APP_CODE_PROPERTY );
@@ -741,17 +781,17 @@ public class CRMApp implements XPageApplication
         {
             user = getUser( request );
 
-            CRMUser crmUser = _crmUserService.findByUserGuid( user.getName( ) );
+            CRMUser crmUser = crmUserService.findByUserGuid( user.getName( ) );
             String strIdDemand = request.getParameter( CRMConstants.PARAMETER_ID_DEMAND );
 
             if ( ( crmUser != null ) && StringUtils.isNotBlank( strIdDemand ) && StringUtils.isNumeric( strIdDemand ) )
             {
                 int nIdDemand = Integer.parseInt( strIdDemand );
-                Demand demand = _demandService.findByPrimaryKey( nIdDemand );
+                Demand demand = demandService.findByPrimaryKey( nIdDemand );
 
                 if ( ( demand != null ) && ( crmUser.getIdCRMUser( ) == demand.getIdCRMUser( ) ) && ( demand.getIdStatusCRM( ) == 0 ) )
                 {
-                    DemandType demandType = _demandTypeService.findByPrimaryKey( demand.getIdDemandType( ) );
+                    DemandType demandType = demandTypeService.findByPrimaryKey( demand.getIdDemandType( ) );
 
                     if ( ( demandType != null ) && demandType.isOpen( ) )
                     {
@@ -796,7 +836,7 @@ public class CRMApp implements XPageApplication
      * @throws UserNotSignedException
      *             exception if user not connected
      */
-    public LuteceUser getUser( HttpServletRequest request ) throws UserNotSignedException
+    public static LuteceUser getUser( HttpServletRequest request ) throws UserNotSignedException
     {
         if ( SecurityService.isAuthenticationEnable( ) )
         {

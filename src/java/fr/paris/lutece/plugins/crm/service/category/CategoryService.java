@@ -38,25 +38,31 @@ import fr.paris.lutece.plugins.crm.business.demand.category.CategoryHome;
 import fr.paris.lutece.plugins.crm.util.constants.CRMConstants;
 import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.message.AdminMessageService;
-import fr.paris.lutece.portal.service.spring.SpringContextService;
+import fr.paris.lutece.portal.service.message.MessageHtml;
+import fr.paris.lutece.portal.service.util.RemovalListenerService;
 import fr.paris.lutece.util.ReferenceList;
-
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.spi.CDI;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+
 /**
  *
  * CategoryService
  *
  */
+@ApplicationScoped
 public class CategoryService
 {
-
-    private static final String BEAN_CRM_CATEGORYSERVICE = "crm.categoryService";
+    @Inject
+    @Named( CategoryRemovalListenerService.BEAN_NAME )
+    private RemovalListenerService _categoryRemovalService;
 
     /**
      * Constructor
@@ -69,10 +75,12 @@ public class CategoryService
      * Get the instance of {@link CategoryService}
      * 
      * @return an instance of {@link CategoryService}
+     * @deprecated since 2.0.0, inject the bean instead of this static accessor
      */
-    public static synchronized CategoryService getService( )
+    @Deprecated( since = "2.0.0", forRemoval = true )
+    public static CategoryService getService( )
     {
-        return SpringContextService.getBean( BEAN_CRM_CATEGORYSERVICE );
+        return CDI.current( ).select( CategoryService.class ).get( );
     }
 
     /**
@@ -165,21 +173,21 @@ public class CategoryService
      *            {@link Locale}
      * @return true if the category is linked to a widget, false otherwise
      */
-    public String removeCategory( int nIdCategory, Locale locale )
+    public MessageHtml removeCategory( int nIdCategory, Locale locale )
     {
-        String strMessage = StringUtils.EMPTY;
+        MessageHtml message = null;
         List<String> listErrors = new ArrayList<String>( );
 
-        if ( !CategoryRemovalListenerService.getService( ).checkForRemoval( Integer.toString( nIdCategory ), listErrors, locale ) )
+        if ( !_categoryRemovalService.checkForRemoval( Integer.toString( nIdCategory ), listErrors, locale ) )
         {
-            strMessage = AdminMessageService.getFormattedList( listErrors, locale );
+            message = AdminMessageService.getFormattedList( listErrors, locale );
         }
         else
         {
             CategoryHome.remove( nIdCategory );
         }
 
-        return strMessage;
+        return message;
     }
 
     /**

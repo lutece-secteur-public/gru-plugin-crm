@@ -33,10 +33,10 @@
  */
 package fr.paris.lutece.plugins.crm.business.demand;
 
-import fr.paris.lutece.plugins.crm.service.CRMPlugin;
+import fr.paris.lutece.plugins.crm.service.CRMService;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
-import fr.paris.lutece.portal.service.spring.SpringContextService;
+import jakarta.enterprise.inject.spi.CDI;
 
 import java.util.List;
 
@@ -47,9 +47,8 @@ import java.util.List;
  */
 public final class DemandStatusCRMHome
 {
-    private static final String BEAN_CRM_DEMANDSTATUSCRMDAO = "crm.demandStatusCRMDAO";
-    private static Plugin _plugin = PluginService.getPlugin( CRMPlugin.PLUGIN_NAME );
-    private static IDemandStatusCRMDAO _dao = SpringContextService.getBean( BEAN_CRM_DEMANDSTATUSCRMDAO );
+    private static Plugin _plugin = PluginService.getPlugin( CRMService.PLUGIN_NAME );
+    private static IDemandStatusCRMDAO _dao = CDI.current( ).select( IDemandStatusCRMDAO.class ).get( );
 
     /**
      * Private constructor

@@ -33,13 +33,13 @@
  */
 package fr.paris.lutece.plugins.crm.business.portlet;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.enterprise.inject.spi.CDI;
+import jakarta.servlet.http.HttpServletRequest;
 
 import fr.paris.lutece.plugins.crm.business.demand.DemandType;
 import fr.paris.lutece.plugins.crm.business.demand.category.Category;
@@ -47,15 +47,17 @@ import fr.paris.lutece.plugins.crm.service.category.CategoryService;
 import fr.paris.lutece.plugins.crm.service.demand.DemandTypeService;
 import fr.paris.lutece.plugins.crm.util.CrmUtils;
 import fr.paris.lutece.plugins.crm.util.constants.CRMConstants;
-import fr.paris.lutece.portal.business.portlet.Portlet;
-import fr.paris.lutece.portal.service.i18n.I18nService;
-import fr.paris.lutece.util.xml.XmlUtil;
+import fr.paris.lutece.portal.business.portlet.PortletHtmlContent;
 
 /**
  * This class represents business objects DemandTypePortlet
  */
-public class DemandTypePortlet extends Portlet
+public class DemandTypePortlet extends PortletHtmlContent
 {
+    private static final String TEMPLATE_PORTLET_DEFAULT = "skin/plugins/crm/portlet/demand_type_portlet.html";
+    private static DemandTypePortletHome _portletHome = CDI.current( ).select( DemandTypePortletHome.class ).get( );
+    private static CategoryService _categoryService = CDI.current( ).select( CategoryService.class ).get( );
+    private static DemandTypeService _demandTypeService = CDI.current( ).select( DemandTypeService.class ).get( );
 
     // Constants
     private int _nIdCategory;
@@ -68,37 +70,26 @@ public class DemandTypePortlet extends Portlet
     }
 
     /**
-     * Returns the Xml code of the DemandeTypePortlet portlet without XML heading
+     * Returns the HTML code of the demand types of the portlet, grouped by category, rendered with the template chosen for the portlet
      *
      * @param request
      *            The HTTP Servlet request
-     * @return the Xml code of the form portlet content
+     * @return the HTML code of the portlet
      */
-    public String getXml( HttpServletRequest request )
+    @Override
+    public String getHtmlContent( HttpServletRequest request )
     {
+        Map<String, Object> model = createPortletModel( );
+        List<Category> listCategories = new ArrayList<>( );
+        Map<String, List<DemandType>> mapDemandTypes = new HashMap<>( );
 
-        Locale locale;
-
-        if ( request != null )
-        {
-            locale = request.getLocale( );
-        }
-        else
-        {
-            locale = I18nService.getDefaultLocale( );
-        }
-
-        StringBuffer strXml = new StringBuffer( );
-        XmlUtil.beginElement( strXml, CRMConstants.TAG_DEMANDE_TYPE_PORTLET );
-        XmlUtil.beginElement( strXml, CRMConstants.TAG_DEMANDE_TYPE_PORTLET_CONTENT );
-        XmlUtil.beginElement( strXml, CRMConstants.TAG_CATEGORY_LIST );
         if ( _nIdCategory != CrmUtils.CONSTANT_ID_NULL )
         {
             Category category = null;
-            if ( _nIdCategory != CrmUtils.convertStringToInt( CRMConstants.NO_CATEGORY ) )
 
+            if ( _nIdCategory != CrmUtils.convertStringToInt( CRMConstants.NO_CATEGORY ) )
             {
-                category = CategoryService.getService( ).findByPrimaryKey( _nIdCategory );
+                category = _categoryService.findByPrimaryKey( _nIdCategory );
             }
             else
             {
@@ -107,29 +98,22 @@ public class DemandTypePortlet extends Portlet
                 category.setName( " " );
             }
 
-            List<DemandType> listDemandType = DemandTypeService.getService( ).findForLuteceUser( request, _nIdCategory );
             if ( category != null )
             {
-                strXml.append( category.getXml( request, locale, listDemandType ) );
+                listCategories.add( category );
+                mapDemandTypes.put( Integer.toString( _nIdCategory ), _demandTypeService.findForLuteceUser( request, _nIdCategory ) );
             }
         }
         else
         {
-            Collection<Category> listCategory = CategoryService.getService( ).getCategoriesList( );
-            Map<String, List<DemandType>> mapCategoryDemandType = DemandTypeService.getService( ).findForLuteceUser( request );
-            for ( Category category : listCategory )
-            {
-                strXml.append( category.getXml( request, locale, mapCategoryDemandType.get( Integer.toString( category.getIdCategory( ) ) ) ) );
-            }
-
+            listCategories.addAll( _categoryService.getCategoriesList( ) );
+            mapDemandTypes = _demandTypeService.findForLuteceUser( request );
         }
-        XmlUtil.endElement( strXml, CRMConstants.TAG_CATEGORY_LIST );
-        XmlUtil.endElement( strXml, CRMConstants.TAG_DEMANDE_TYPE_PORTLET_CONTENT );
-        XmlUtil.endElement( strXml, CRMConstants.TAG_DEMANDE_TYPE_PORTLET );
 
-        String str = addPortletTags( strXml );
+        model.put( CRMConstants.MARK_CATEGORIES_LIST, listCategories );
+        model.put( CRMConstants.MARK_MAP_DEMAND_TYPES_LIST, mapDemandTypes );
 
-        return str;
+        return renderTemplate( request, TEMPLATE_PORTLET_DEFAULT, model );
     }
 
     /**
@@ -154,23 +138,11 @@ public class DemandTypePortlet extends Portlet
     }
 
     /**
-     * Returns the Xml code of the form portlet with XML heading
-     *
-     * @param request
-     *            The HTTP Servlet Request
-     * @return the Xml code of the Articles List portlet
-     */
-    public String getXmlDocument( HttpServletRequest request )
-    {
-        return XmlUtil.getXmlHeader( ) + getXml( request );
-    }
-
-    /**
      * Updates the current instance of the form portlet object
      */
     public void update( )
     {
-        DemandTypePortletHome.getInstance( ).update( this );
+        _portletHome.update( this );
     }
 
     /**
@@ -178,24 +150,6 @@ public class DemandTypePortlet extends Portlet
      */
     public void remove( )
     {
-        DemandTypePortletHome.getInstance( ).remove( this );
+        _portletHome.remove( this );
     }
-
-    @Override
-    public Map<String, String> getXslParams( )
-    {
-        Locale defaultLocale = I18nService.getDefaultLocale( );
-        HashMap<String, String> mapParams = new HashMap<String, String>( );
-        mapParams.put( CRMConstants.MARK_XSL_PARAM_I18N_LABEL_DEMAND_TYPES_LIST,
-                I18nService.getLocalizedString( CRMConstants.PROPERTY_LABEL_DEMAND_TYPES_LIST, defaultLocale ) );
-        mapParams.put( CRMConstants.MARK_XSL_PARAM_I18N_LABEL_CRM_INFO, I18nService.getLocalizedString( CRMConstants.PROPERTY_LABEL_CRM_INFO, defaultLocale ) );
-        mapParams.put( CRMConstants.MARK_XSL_PARAM_I18N_LABEL_CRM_CONTACT,
-                I18nService.getLocalizedString( CRMConstants.PROPERTY_LABEL_CRM_CONTACT, defaultLocale ) );
-        mapParams.put( CRMConstants.MARK_XSL_PARAM_I18N_LABEL_CRM_DATE_BEGIN,
-                I18nService.getLocalizedString( CRMConstants.PROPERTY_LABEL_CRM_DATE_BEGIN, defaultLocale ) );
-        mapParams.put( CRMConstants.MARK_XSL_PARAM_I18N_LABEL_CRM_DATE_END,
-                I18nService.getLocalizedString( CRMConstants.PROPERTY_LABEL_CRM_DATE_END, defaultLocale ) );
-        return mapParams;
-    }
-
 }

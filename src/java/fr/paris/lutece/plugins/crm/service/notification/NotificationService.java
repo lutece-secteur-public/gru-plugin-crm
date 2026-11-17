@@ -36,21 +36,23 @@ package fr.paris.lutece.plugins.crm.service.notification;
 import fr.paris.lutece.plugins.crm.business.notification.Notification;
 import fr.paris.lutece.plugins.crm.business.notification.NotificationFilter;
 import fr.paris.lutece.plugins.crm.business.notification.NotificationHome;
-import fr.paris.lutece.portal.service.spring.SpringContextService;
 
 import java.sql.Timestamp;
 
 import java.util.Date;
 import java.util.List;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.spi.CDI;
+
 /**
  *
  * NotificationService
  *
  */
+@ApplicationScoped
 public class NotificationService
 {
-    private static final String BEAN_CRM_NOTIFICATIONSERVICE = "crm.notificationService";
 
     /**
      * Constructor
@@ -63,10 +65,12 @@ public class NotificationService
      * Get the instance of {@link NotificationService}
      * 
      * @return the instance of {@link NotificationService}
+     * @deprecated since 2.0.0, inject the bean instead of this static accessor
      */
+    @Deprecated( since = "2.0.0", forRemoval = true )
     public static NotificationService getService( )
     {
-        return SpringContextService.getBean( BEAN_CRM_NOTIFICATIONSERVICE );
+        return CDI.current( ).select( NotificationService.class ).get( );
     }
 
     /**

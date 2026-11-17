@@ -36,20 +36,24 @@ package fr.paris.lutece.plugins.crm.service.user;
 import fr.paris.lutece.plugins.crm.business.user.CRMUser;
 import fr.paris.lutece.plugins.crm.business.user.CRMUserFilter;
 import fr.paris.lutece.plugins.crm.business.user.CRMUserHome;
-import fr.paris.lutece.portal.service.spring.SpringContextService;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.spi.CDI;
+import jakarta.inject.Inject;
 
 /**
  *
  * CRMUserService
  *
  */
+@ApplicationScoped
 public class CRMUserService
 {
-    private static final String BEAN_CRM_CRMUSERSERVICE = "crm.crmUserService";
+    @Inject
     private CRMUserAttributesService _crmUserAttributesService;
 
     /**
@@ -63,10 +67,12 @@ public class CRMUserService
      * Get the instance of CRMUserService
      * 
      * @return the instance of CRMUserService
+     * @deprecated since 2.0.0, inject the bean instead of this static accessor
      */
+    @Deprecated( since = "2.0.0", forRemoval = true )
     public static CRMUserService getService( )
     {
-        return SpringContextService.getBean( BEAN_CRM_CRMUSERSERVICE );
+        return CDI.current( ).select( CRMUserService.class ).get( );
     }
 
     /**

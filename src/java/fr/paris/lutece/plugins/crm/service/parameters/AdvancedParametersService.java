@@ -35,17 +35,18 @@ package fr.paris.lutece.plugins.crm.service.parameters;
 
 import fr.paris.lutece.plugins.crm.business.parameters.AdvancedParametersHome;
 import fr.paris.lutece.plugins.crm.service.demand.DemandTypeService;
-import fr.paris.lutece.portal.service.spring.SpringContextService;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.spi.CDI;
 
 /**
  *
  * The Class AdvancedParametersService.
  *
  */
+@ApplicationScoped
 public class AdvancedParametersService
 {
-    // BEAN
-    private static final String BEAN_CRM_ADVANCED_PARAMETERS = "crm.advancedParametersService";
 
     /**
      * Constructor
@@ -58,10 +59,12 @@ public class AdvancedParametersService
      * Get the instance of {@link DemandTypeService}
      * 
      * @return the instance of {@link DemandTypeService}
+     * @deprecated since 2.0.0, inject the bean instead of this static accessor
      */
+    @Deprecated( since = "2.0.0", forRemoval = true )
     public static AdvancedParametersService getService( )
     {
-        return SpringContextService.getBean( BEAN_CRM_ADVANCED_PARAMETERS );
+        return CDI.current( ).select( AdvancedParametersService.class ).get( );
     }
 
     /**

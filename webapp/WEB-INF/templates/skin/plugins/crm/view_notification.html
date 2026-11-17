@@ -1,22 +1,14 @@
-<div class="col-sm-11 col-md-11">
-	<div class="row">
-		<a class="btn btn-primary btn-sm" href="jsp/site/Portal.jsp?page=crm&amp;action=manage_notifications&amp;id_demand=${demand.idDemand}" title="#i18n{crm.view_notification.buttonBack}">
-			#i18n{crm.view_notification.buttonBack}
-		</a>
-	</div>
-	<div class="row">
-		<h2>${notification.object}</h2>
-		<p>
-			<b>#i18n{crm.view_notification.labelSender} : </b>${notification.sender}
-		</p>
-		<p>
-			<b>#i18n{crm.view_notification.labelDateSent} : </b>${notification.dateCreation?date}
-		</p>
-		<p>
-			<b>#i18n{crm.view_notification.labelTargetResource} : </b><#if demand_type?? && demand_type != "?">${demand_type.label!''}</#if>
-		</p>
-		<p>
-			${notification.message}
-		</p>
-	</div>
-</div>
+<@cTpl>
+<@cContainer>
+<@cRow>
+	<@cCol>
+		<@cBtn href='jsp/site/Portal.jsp?page=crm&action=manage_notifications&id_demand=${demand.idDemand}' class='secondary btn-sm' label='#i18n{crm.view_notification.buttonBack}' />
+		<@cTitle level=2>${notification.object!}</@cTitle>
+		<@cText><@cInline class='fw-bold'>#i18n{crm.view_notification.labelSender} : </@cInline>${notification.sender!}</@cText>
+		<@cText><@cInline class='fw-bold'>#i18n{crm.view_notification.labelDateSent} : </@cInline>${notification.dateCreation?date}</@cText>
+		<@cText><@cInline class='fw-bold'>#i18n{crm.view_notification.labelTargetResource} : </@cInline><#if demand_type??>${demand_type.label!}</#if></@cText>
+		<@cText>${notification.message!}</@cText>
+	</@cCol>
+</@cRow>
+</@cContainer>
+</@cTpl>

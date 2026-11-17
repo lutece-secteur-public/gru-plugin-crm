@@ -36,7 +36,7 @@ package fr.paris.lutece.plugins.crm.business.demand.category;
 import java.util.List;
 import java.util.Locale;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import fr.paris.lutece.plugins.crm.business.demand.DemandType;
 import fr.paris.lutece.plugins.crm.util.CrmUtils;

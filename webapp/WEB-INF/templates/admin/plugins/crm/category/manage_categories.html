@@ -1,35 +1,29 @@
-<@row>
-	<@columns>
-		<@box>
-			<@boxHeader title='#i18n{crm.manage_categories.tableLabel}' skipHeader=true boxTools=true>
-				<@tform method='post' action='jsp/admin/plugins/crm/CreateCategory.jsp'>
-					<@button type='submit' name='' buttonIcon='plus me-1 mr-1' title='#i18n{crm.manage_categories.buttonAddCategory}' />
-				</@tform>
-			</@boxHeader>
-			<@boxBody class='table-responsive'>
-				<@table headBody=true>
-					<@tr>
-						<@th>#i18n{crm.manage_categories.columnName}</@th>
-						<@th>#i18n{crm.manage_categories.columnDescription}</@th>
-						<@th>#i18n{crm.manage_categories.columnCode}</@th>
-						<@th>#i18n{crm.manage_categories.columnActions}</@th>
-					</@tr>
-					<@tableHeadBodySeparator />
-					<#list categories_list as category >
-						<@tr>
-							<@td>${category.name}</@td>
-							<@td>${category.description}</@td>
-							<@td>${category.code!}</@td>
-							<@td>
-								<@aButton href='jsp/admin/plugins/crm/ModifyCategory.jsp?category_id_category=${category.idCategory}' title='#i18n{portal.util.labelModify}' buttonIcon='edit me-1 mr-1' hideTitle=['xs'] />
-                                <@aButton href='jsp/admin/plugins/crm/RemoveCategory.jsp?category_id_category=${category.idCategory}' title='#i18n{portal.util.labelDelete}' color='danger' buttonIcon='times me-1 mr-1' hideTitle=['xs'] />
-							</@td>
-						</@tr>					
-					</#list>
-				</@table>
-				
-				<@paginationAdmin paginator=paginator combo=1 />
-			</@boxBody>
-		</@box>
-	</@columns>
-</@row>
+<@pageContainer>
+	<@pageColumn>
+		<@pageHeader title='#i18n{crm.manage_categories.pageTitle}'>
+			<@aButton href='jsp/admin/plugins/crm/ManageDemandTypes.jsp' buttonIcon='arrow-left' title='#i18n{portal.util.labelBack}' color='light' />
+			<@aButton href='jsp/admin/plugins/crm/ManageCategories.jsp?view=createCategory' buttonIcon='plus' title='#i18n{crm.manage_categories.buttonAddCategory}' color='primary' />
+		</@pageHeader>
+		<@messages infos=infos![] errors=errors![] warnings=warnings![] />
+		<#if categories_list?has_content>
+			<@manageFeature>
+				<#list categories_list as category>
+				<@manageFeatureItem>
+					<@manageFeatureItemColumn auto=true flex=false>
+						<@p class='fw-bold'>${category.name!}</@p>
+						<@p>${category.description!}</@p>
+					</@manageFeatureItemColumn>
+					<@manageFeatureItemColumn auto=true>#i18n{crm.manage_categories.columnCode} : ${category.code!}</@manageFeatureItemColumn>
+					<@manageFeatureItemColumn align='end'>
+						<@aButton href='jsp/admin/plugins/crm/ManageCategories.jsp?view=modifyCategory&category_id_category=${category.idCategory}' title='#i18n{portal.util.labelModify}' buttonIcon='edit' hideTitle=['xs'] />
+						<@aButton href='jsp/admin/plugins/crm/ManageCategories.jsp?view=confirmRemoveCategory&category_id_category=${category.idCategory}' title='#i18n{portal.util.labelDelete}' color='danger' buttonIcon='trash' hideTitle=['xs'] />
+					</@manageFeatureItemColumn>
+				</@manageFeatureItem>
+				</#list>
+			</@manageFeature>
+			<@paginationAdmin paginator=paginator combo=1 />
+		<#else>
+			<@empty title='#i18n{portal.util.labelNoItem}' />
+		</#if>
+	</@pageColumn>
+</@pageContainer>

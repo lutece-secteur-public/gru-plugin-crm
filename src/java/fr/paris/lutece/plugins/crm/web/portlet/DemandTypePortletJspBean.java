@@ -34,8 +34,14 @@
 package fr.paris.lutece.plugins.crm.web.portlet;
 
 import java.util.HashMap;
+import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang3.StringUtils;
 
 import fr.paris.lutece.plugins.crm.business.portlet.DemandTypePortlet;
 import fr.paris.lutece.plugins.crm.business.portlet.DemandTypePortletHome;
@@ -43,17 +49,33 @@ import fr.paris.lutece.plugins.crm.service.category.CategoryService;
 import fr.paris.lutece.plugins.crm.util.CrmUtils;
 import fr.paris.lutece.plugins.crm.util.constants.CRMConstants;
 import fr.paris.lutece.portal.business.portlet.PortletHome;
+import fr.paris.lutece.portal.service.i18n.I18nService;
+import fr.paris.lutece.portal.service.message.AdminMessage;
+import fr.paris.lutece.portal.service.message.AdminMessageService;
+import fr.paris.lutece.portal.service.security.SecurityTokenService;
 import fr.paris.lutece.portal.web.portlet.PortletJspBean;
 import fr.paris.lutece.util.html.HtmlTemplate;
 
 /**
  * This class provides the user interface to manage DemandTypePortletJspBean Portlet
  */
+@RequestScoped
+@Named( "crmDemandTypePortletJspBean" )
 public class DemandTypePortletJspBean extends PortletJspBean
 {
     // //////////////////////////////////////////////////////////////////////////
     // Constants
-    private CategoryService _categoryService = CategoryService.getService( );
+    private static final long serialVersionUID = 1L;
+    private static final String ACTION_CREATE_PORTLET = "crm.createPortlet";
+    private static final String ACTION_MODIFY_PORTLET = "crm.modifyPortlet";
+    private static final String MESSAGE_INVALID_TOKEN = "crm.message.invalidToken";
+    private static final String MESSAGE_PORTLET_NOT_FOUND = "crm.message.portletNotFound";
+
+    @Inject
+    private CategoryService _categoryService;
+
+    @Inject
+    private DemandTypePortletHome _portletHome;
 
     /**
      * {@inheritDoc}
@@ -61,10 +83,11 @@ public class DemandTypePortletJspBean extends PortletJspBean
     @Override
     public String getCreate( HttpServletRequest request )
     {
-        HashMap<String, Object> model = new HashMap<String, Object>( );
+        Map<String, Object> model = new HashMap<>( );
         String strIdPage = request.getParameter( PARAMETER_PAGE_ID );
         String strIdPortletType = request.getParameter( PARAMETER_PORTLET_TYPE_ID );
         model.put( CRMConstants.MARK_CATEGORIES_LIST, _categoryService.getCategories( getLocale( ), true, true ) );
+        model.put( SecurityTokenService.MARK_TOKEN, getSecurityTokenService( ).getToken( request, ACTION_CREATE_PORTLET ) );
         HtmlTemplate template = getCreateTemplate( strIdPage, strIdPortletType, model );
 
         return template.getHtml( );
@@ -76,13 +99,19 @@ public class DemandTypePortletJspBean extends PortletJspBean
     @Override
     public String getModify( HttpServletRequest request )
     {
-
-        HashMap<String, Object> model = new HashMap<String, Object>( );
         String strPortletId = request.getParameter( PARAMETER_PORTLET_ID );
-        int nPortletId = CrmUtils.convertStringToInt( strPortletId );
-        DemandTypePortlet portlet = (DemandTypePortlet) PortletHome.findByPrimaryKey( nPortletId );
+        DemandTypePortlet portlet = StringUtils.isNumeric( strPortletId ) ? (DemandTypePortlet) PortletHome.findByPrimaryKey( CrmUtils.convertStringToInt( strPortletId ) )
+                : null;
+
+        if ( portlet == null )
+        {
+            return I18nService.getLocalizedString( MESSAGE_PORTLET_NOT_FOUND, getLocale( ) );
+        }
+
+        Map<String, Object> model = new HashMap<>( );
         model.put( CRMConstants.MARK_CATEGORIES_LIST, _categoryService.getCategories( getLocale( ), true, true ) );
         model.put( CRMConstants.MARK_CATEGORY_ID_CATEGORY, portlet.getIdCategory( ) );
+        model.put( SecurityTokenService.MARK_TOKEN, getSecurityTokenService( ).getToken( request, ACTION_MODIFY_PORTLET ) );
 
         HtmlTemplate template = getModifyTemplate( portlet, model );
 
@@ -95,6 +124,10 @@ public class DemandTypePortletJspBean extends PortletJspBean
     @Override
     public String doCreate( HttpServletRequest request )
     {
+        if ( !getSecurityTokenService( ).validate( request, ACTION_CREATE_PORTLET ) )
+        {
+            return AdminMessageService.getMessageUrl( request, MESSAGE_INVALID_TOKEN, AdminMessage.TYPE_STOP );
+        }
 
         DemandTypePortlet portlet = new DemandTypePortlet( );
         // gets the identifier of the parent page
@@ -111,7 +144,7 @@ public class DemandTypePortletJspBean extends PortletJspBean
         portlet.setIdCategory( nIdCategory );
 
         // Portlet creation
-        DemandTypePortletHome.getInstance( ).create( portlet );
+        _portletHome.create( portlet );
 
         // Displays the page with the new Portlet
         return getPageUrl( portlet.getPageId( ) );
@@ -123,14 +156,24 @@ public class DemandTypePortletJspBean extends PortletJspBean
     @Override
     public String doModify( HttpServletRequest request )
     {
+        if ( !getSecurityTokenService( ).validate( request, ACTION_MODIFY_PORTLET ) )
+        {
+            return AdminMessageService.getMessageUrl( request, MESSAGE_INVALID_TOKEN, AdminMessage.TYPE_STOP );
+        }
+
         // recovers portlet attributes
         String strPortletId = request.getParameter( PARAMETER_PORTLET_ID );
         String strCategory = request.getParameter( CRMConstants.PARAMETER_CATEGORY_ID_CATEGORY );
-
-        int nPortletId = CrmUtils.convertStringToInt( strPortletId );
         int nIdCategory = CrmUtils.convertStringToInt( strCategory );
 
-        DemandTypePortlet portlet = (DemandTypePortlet) PortletHome.findByPrimaryKey( nPortletId );
+        DemandTypePortlet portlet = StringUtils.isNumeric( strPortletId ) ? (DemandTypePortlet) PortletHome.findByPrimaryKey( CrmUtils.convertStringToInt( strPortletId ) )
+                : null;
+
+        if ( portlet == null )
+        {
+            return AdminMessageService.getMessageUrl( request, MESSAGE_PORTLET_NOT_FOUND, AdminMessage.TYPE_STOP );
+        }
+
         // retrieve portlet common attributes
         String strErrorUrl = setPortletCommonData( request, portlet );
 
@@ -142,10 +185,9 @@ public class DemandTypePortletJspBean extends PortletJspBean
         portlet.setIdCategory( nIdCategory );
 
         // Portlet update
-        DemandTypePortletHome.getInstance( ).update( portlet );
+        _portletHome.update( portlet );
 
         // displays the page withe the potlet updated
         return getPageUrl( portlet.getPageId( ) );
     }
-
 }

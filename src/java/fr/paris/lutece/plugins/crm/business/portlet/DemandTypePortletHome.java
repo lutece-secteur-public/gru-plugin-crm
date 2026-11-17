@@ -36,30 +36,26 @@ package fr.paris.lutece.plugins.crm.business.portlet;
 import fr.paris.lutece.portal.business.portlet.IPortletInterfaceDAO;
 import fr.paris.lutece.portal.business.portlet.PortletHome;
 import fr.paris.lutece.portal.business.portlet.PortletTypeHome;
-import fr.paris.lutece.portal.service.spring.SpringContextService;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.spi.CDI;
 
 /**
  * This class provides instances management methods for DemandTypePortletHome objects
  */
+@ApplicationScoped
 public class DemandTypePortletHome extends PortletHome
 {
     // ///////////////////////////////////////////////////////////////////////////////
     // Constants
     // Static variable pointed at the DAO instance
-    private static IDemandTypePortletDAO _dao = SpringContextService.getBean( "crm.demandTypePortletDAO" );
-
-    /* This class implements the Singleton design pattern. */
-    private static DemandTypePortletHome _singleton;
+    private static IDemandTypePortletDAO _dao = CDI.current( ).select( IDemandTypePortletDAO.class ).get( );
 
     /**
      * Constructor
      */
     public DemandTypePortletHome( )
     {
-        if ( _singleton == null )
-        {
-            _singleton = this;
-        }
     }
 
     /**
@@ -67,14 +63,10 @@ public class DemandTypePortletHome extends PortletHome
      *
      * @return the DemandTypePortletHome instance
      */
-    public static DemandTypePortletHome getInstance( )
+    @Deprecated( since = "2.0.0", forRemoval = true )
+    public static PortletHome getInstance( )
     {
-        if ( _singleton == null )
-        {
-            _singleton = new DemandTypePortletHome( );
-        }
-
-        return _singleton;
+        return CDI.current( ).select( DemandTypePortletHome.class ).get( );
     }
 
     /**

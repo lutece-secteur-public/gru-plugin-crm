@@ -38,31 +38,39 @@ import fr.paris.lutece.plugins.crm.business.user.CRMUserAttributeHome;
 import fr.paris.lutece.plugins.crm.util.constants.CRMConstants;
 import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.security.UserAttributesService;
-import fr.paris.lutece.portal.service.spring.SpringContextService;
-import fr.paris.lutece.portal.service.util.AppPropertiesService;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.spi.CDI;
+import jakarta.inject.Inject;
 
 /**
  *
  * CRMUserAttributesService
  *
  */
-public final class CRMUserAttributesService implements UserAttributesService
+@ApplicationScoped
+public class CRMUserAttributesService implements UserAttributesService
 {
-    private static final String BEAN_CRM_CRMUSERATTRIBUTESSERVICE = "crm.crmUserAttributesService";
+    @Inject
     private CRMUserService _crmUserService;
+    @Inject
+    @ConfigProperty( name = CRMConstants.PROPERTY_CRM_USER_ATTRIBUTE_KEYS )
+    private Optional<String> _strUserAttributeKeys;
 
     /**
-     * Private constructor
+     * Constructor
      */
-    private CRMUserAttributesService( )
+    protected CRMUserAttributesService( )
     {
     }
 
@@ -70,10 +78,12 @@ public final class CRMUserAttributesService implements UserAttributesService
      * Get the instance of CRMUserAttributesService
      * 
      * @return the instance of {@link CRMUserAttributesService}
+     * @deprecated since 2.0.0, inject the bean instead of this static accessor
      */
+    @Deprecated( since = "2.0.0", forRemoval = true )
     public static CRMUserAttributesService getService( )
     {
-        return SpringContextService.getBean( BEAN_CRM_CRMUSERATTRIBUTESSERVICE );
+        return CDI.current( ).select( CRMUserAttributesService.class ).get( );
     }
 
     /**
@@ -172,7 +182,7 @@ public final class CRMUserAttributesService implements UserAttributesService
     public List<String> getUserAttributeKeys( )
     {
         List<String> listUserAttributeKeys = new ArrayList<String>( );
-        String strUserAttributeKeys = AppPropertiesService.getProperty( CRMConstants.PROPERTY_CRM_USER_ATTRIBUTE_KEYS );
+        String strUserAttributeKeys = _strUserAttributeKeys.orElse( null );
 
         if ( StringUtils.isNotBlank( strUserAttributeKeys ) )
         {

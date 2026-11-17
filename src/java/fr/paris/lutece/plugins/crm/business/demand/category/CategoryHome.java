@@ -33,10 +33,10 @@
  */
 package fr.paris.lutece.plugins.crm.business.demand.category;
 
-import fr.paris.lutece.plugins.crm.service.CRMPlugin;
+import fr.paris.lutece.plugins.crm.service.CRMService;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
-import fr.paris.lutece.portal.service.spring.SpringContextService;
+import jakarta.enterprise.inject.spi.CDI;
 import fr.paris.lutece.util.ReferenceList;
 
 import java.util.Collection;
@@ -48,9 +48,8 @@ import java.util.Collection;
  */
 public final class CategoryHome
 {
-    private static final String BEAN_CRM_CATEGORYDAO = "crm.categoryDAO";
-    private static Plugin _plugin = PluginService.getPlugin( CRMPlugin.PLUGIN_NAME );
-    private static ICategoryDAO _dao = SpringContextService.getBean( BEAN_CRM_CATEGORYDAO );
+    private static Plugin _plugin = PluginService.getPlugin( CRMService.PLUGIN_NAME );
+    private static ICategoryDAO _dao = CDI.current( ).select( ICategoryDAO.class ).get( );
 
     /**
      * Private constructor - this class need not be instantiated

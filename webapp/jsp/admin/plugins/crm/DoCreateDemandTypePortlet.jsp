@@ -1,8 +1,6 @@
 <%@ page errorPage="../../ErrorPage.jsp" %>
 
-<jsp:useBean id="crmDemandTypePortlet" scope="session" class="fr.paris.lutece.plugins.crm.web.portlet.DemandTypePortletJspBean" />
+<%@page import="fr.paris.lutece.plugins.crm.web.demand.DemandTypeJspBean"%>
 
-<%
-	crmDemandTypePortlet.init( request,  fr.paris.lutece.plugins.crm.web.demand.DemandTypeJspBean.RIGHT_MANAGE_CRM_DEMAND_TYPES );
-%>
-<% response.sendRedirect( crmDemandTypePortlet.doCreate( request ) ); %>
+${ crmDemandTypePortletJspBean.init( pageContext.request, DemandTypeJspBean.RIGHT_MANAGE_CRM_DEMAND_TYPES ) }
+${ pageContext.response.sendRedirect( crmDemandTypePortletJspBean.doCreate( pageContext.request ) ) }

@@ -1,19 +1,18 @@
-<@row>
-	<@columns>
-		<@box>
-			<@boxHeader title='#i18n{crm.manage_demand_types.advancedParametersLabel}' />
-			<@boxBody class='table-responsive'>
-				<@tform method='post' action='jsp/admin/plugins/crm/DoModifyAdvancedParameters.jsp'>
-				<#if bDisplayDraft!><#assign isChecked=true><#else><#assign isChecked=false></#if> 
-				<@formGroup labelKey='#i18n{crm.manage_demand_types.displayDraftLabel}' helpKey='#i18n{crm.manage_demand_types.displayDraftDescription}' hideLabel=['all'] rows=2>
-					<@checkBox labelFor='bDisplayDraft' labelKey='#i18n{crm.manage_demand_types.displayDraftLabel}' name='bDisplayDraft' checked=isChecked />
-				</@formGroup>
-				<@formGroup>
-					<@button type='submit' name='' title='#i18n{crm.crm.buttonModify}' buttonIcon='check' />
-					<@aButton href='jsp/admin/plugins/crm/ManageDemandTypes.jsp' title='#i18n{crm.modify_category.buttonCancel}' buttonIcon='close' color='default' />
-				</@formGroup>
-				</@tform>
-			</@boxBody>
-		</@box>
-	</@columns>
-</@row>
+<@pageContainer>
+	<@pageColumn>
+		<@pageHeader title='#i18n{crm.manage_demand_types.advancedParametersLabel}'>
+			<@aButton href='jsp/admin/plugins/crm/ManageDemandTypes.jsp' buttonIcon='arrow-left' title='#i18n{portal.util.labelBack}' color='light' />
+		</@pageHeader>
+		<@messages infos=infos![] errors=errors![] warnings=warnings![] />
+		<@tform method='post' action='jsp/admin/plugins/crm/ManageDemandTypes.jsp' boxed=true>
+			<@input type='hidden' name='action' value='modifyAdvancedParameters' />
+			<@formGroup labelFor='bDisplayDraft' labelKey='#i18n{crm.manage_demand_types.displayDraftLabel}' helpKey='#i18n{crm.manage_demand_types.displayDraftDescription}' hideLabel=['all'] rows=2>
+				<@checkBox orientation='switch' labelKey='#i18n{crm.manage_demand_types.displayDraftLabel}' name='bDisplayDraft' id='bDisplayDraft' value='true' checked=bDisplayDraft!false />
+			</@formGroup>
+			<@formGroup>
+				<@button type='submit' title='#i18n{crm.crm.buttonModify}' buttonIcon='check' color='primary' />
+				<@aButton href='jsp/admin/plugins/crm/ManageDemandTypes.jsp' title='#i18n{crm.modify_category.buttonCancel}' buttonIcon='x' color='light' />
+			</@formGroup>
+		</@tform>
+	</@pageColumn>
+</@pageContainer>

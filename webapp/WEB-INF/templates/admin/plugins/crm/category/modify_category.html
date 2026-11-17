@@ -1,25 +1,25 @@
-<@row>
-	<@columns>
-		<@box>
-			<@boxHeader title='#i18n{crm.modify_category.pageTitle}' />
-			<@boxBody>		
-				<@tform method='post' name='modify_category' id='modify_category' action='jsp/admin/plugins/crm/DoModifyCategory.jsp'>
-					<@input type='hidden' name='category_id_category' value='${category.idCategory}' />
-					<@formGroup labelFor='category_name' labelKey='#i18n{crm.modify_category.labelName}' mandatory=true>
-						<@input type='text' name='category_name' maxlength=50 value='${category.name}' />
-					</@formGroup>
-					<@formGroup labelFor='category_description' labelKey='#i18n{crm.modify_category.labelDescription}' mandatory=true>
-						<@input type='text' id='category_description' name='category_description' value='${category.description}' maxlength=100 />
-					</@formGroup>
-					<@formGroup labelFor='category_code' labelKey='#i18n{crm.modify_category.labelCode}' mandatory=true>
-						<@input type='text' id='category_code' name='category_code' value='${category.code!}' maxlength=50 />
-					</@formGroup>
-					<@formGroup>
-						<@button type='submit' name='' title='#i18n{crm.modify_category.buttonModify}' buttonIcon='check' />
-						<@aButton href='jsp/admin/plugins/crm/ManageCategories.jsp' title='#i18n{crm.modify_category.buttonCancel}' buttonIcon='close' color='default' />
-					</@formGroup>
-				</@tform>
-			</@boxBody>
-		</@box>
-	</@columns>
-</@row>
+<@pageContainer>
+	<@pageColumn>
+		<@pageHeader title='#i18n{crm.modify_category.pageTitle}'>
+			<@aButton href='jsp/admin/plugins/crm/ManageCategories.jsp' buttonIcon='arrow-left' title='#i18n{portal.util.labelBack}' color='light' />
+		</@pageHeader>
+		<@messages errors=errors![] />
+		<@tform method='post' name='modify_category' id='modify_category' action='jsp/admin/plugins/crm/ManageCategories.jsp' boxed=true>
+			<@input type='hidden' name='action' value='modifyCategory' />
+			<@input type='hidden' name='category_id_category' value='${category.idCategory}' />
+			<@formGroup labelFor='category_name' labelKey='#i18n{crm.modify_category.labelName}' mandatory=true>
+				<@input type='text' name='category_name' id='category_name' maxlength=50 value='${category.name!}' mandatory=true />
+			</@formGroup>
+			<@formGroup labelFor='category_description' labelKey='#i18n{crm.modify_category.labelDescription}' mandatory=true>
+				<@input type='text' id='category_description' name='category_description' value='${category.description!}' maxlength=100 mandatory=true />
+			</@formGroup>
+			<@formGroup labelFor='category_code' labelKey='#i18n{crm.modify_category.labelCode}' mandatory=true>
+				<@input type='text' id='category_code' name='category_code' value='${category.code!}' maxlength=50 mandatory=true />
+			</@formGroup>
+			<@formGroup>
+				<@button type='submit' title='#i18n{crm.modify_category.buttonModify}' buttonIcon='check' color='primary' />
+				<@aButton href='jsp/admin/plugins/crm/ManageCategories.jsp' title='#i18n{crm.modify_category.buttonCancel}' buttonIcon='x' color='light' />
+			</@formGroup>
+		</@tform>
+	</@pageColumn>
+</@pageContainer>

@@ -38,6 +38,10 @@ import fr.paris.lutece.plugins.crm.service.notification.MokeNotificationService;
 import fr.paris.lutece.plugins.crm.service.user.MokeCRMUserService;
 import fr.paris.lutece.test.LuteceTestCase;
 
+import org.junit.jupiter.api.Test;
+
+import jakarta.enterprise.inject.spi.CDI;
+
 /**
  *
  * CRMServiceTest
@@ -59,6 +63,7 @@ public class CRMServiceTest extends LuteceTestCase
     /**
      * Test of registerDemand method of class fr.paris.lutece.plugins.crm.service.CRMService
      */
+    @Test
     public void testRegisterDemand( )
     {
         System.out.println( "registerDemand" );
@@ -73,6 +78,7 @@ public class CRMServiceTest extends LuteceTestCase
     /**
      * Test of setStatus method of class fr.paris.lutece.plugins.crm.service.CRMService
      */
+    @Test
     public void testSetStatus( )
     {
         System.out.println( "setStatus" );
@@ -84,6 +90,7 @@ public class CRMServiceTest extends LuteceTestCase
     /**
      * Test of deleteDemand method of class fr.paris.lutece.plugins.crm.service.CRMService
      */
+    @Test
     public void testDeleteDemand( )
     {
         System.out.println( "deleteDemand" );
@@ -95,6 +102,7 @@ public class CRMServiceTest extends LuteceTestCase
     /**
      * Test of notify method of class fr.paris.lutece.plugins.crm.service.CRMService
      */
+    @Test
     public void testNotify( )
     {
         System.out.println( "notify" );
@@ -110,7 +118,7 @@ public class CRMServiceTest extends LuteceTestCase
      */
     private CRMService getCRMService( )
     {
-        CRMService service = CRMService.getService( );
+        CRMService service = CDI.current( ).select( CRMService.class ).get( );
         service.setNotificationService( new MokeNotificationService( ) );
         service.setCRMUserService( new MokeCRMUserService( ) );
         service.setDemandService( new MokeDemandService( ) );

@@ -37,10 +37,12 @@ import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.sql.DAOUtil;
 
 import org.apache.commons.lang3.StringUtils;
+import jakarta.enterprise.context.ApplicationScoped;
 
 /**
  * The Class AdvancedParametersDAO.
  */
+@ApplicationScoped
 public class AdvancedParametersDAO implements IAdvancedParametersDAO
 {
     // SQL QUERIES
@@ -55,19 +57,19 @@ public class AdvancedParametersDAO implements IAdvancedParametersDAO
     {
         String strValue = StringUtils.EMPTY;
 
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_VALUE_PARAMETER_BY_KEY, plugin );
-        daoUtil.setString( 1, strKey );
-
-        daoUtil.executeQuery( );
-
-        while ( daoUtil.next( ) )
+        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_VALUE_PARAMETER_BY_KEY, plugin ) )
         {
-            strValue = daoUtil.getString( 1 );
+            daoUtil.setString( 1, strKey );
+
+            daoUtil.executeQuery( );
+
+            while ( daoUtil.next( ) )
+            {
+                strValue = daoUtil.getString( 1 );
+            }
+
+            return strValue;
         }
-
-        daoUtil.free( );
-
-        return strValue;
     }
 
     /**
@@ -76,12 +78,13 @@ public class AdvancedParametersDAO implements IAdvancedParametersDAO
     @Override
     public void modifyParameterStringValueByKey( String key, String strValue, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_MODIFY_VALUE_PARAMETER_BY_KEY, plugin );
-        daoUtil.setString( 1, strValue );
-        daoUtil.setString( 2, key );
+        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_MODIFY_VALUE_PARAMETER_BY_KEY, plugin ) )
+        {
+            daoUtil.setString( 1, strValue );
+            daoUtil.setString( 2, key );
 
-        daoUtil.executeUpdate( );
+            daoUtil.executeUpdate( );
 
-        daoUtil.free( );
+        }
     }
 }

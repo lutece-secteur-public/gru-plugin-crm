@@ -35,6 +35,8 @@ package fr.paris.lutece.plugins.crm.business.user;
 
 import fr.paris.lutece.test.LuteceTestCase;
 
+import org.junit.jupiter.api.Test;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +63,7 @@ public class CRMUserTest extends LuteceTestCase
     /**
      * Test business of class fr.paris.lutece.plugins.crm.business.user.CRMUser
      */
+    @Test
     public void testBusiness( )
     {
         // Initialize an object

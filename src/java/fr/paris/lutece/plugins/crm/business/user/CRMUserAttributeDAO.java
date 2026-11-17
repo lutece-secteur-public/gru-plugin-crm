@@ -38,12 +38,14 @@ import fr.paris.lutece.util.sql.DAOUtil;
 
 import java.util.HashMap;
 import java.util.Map;
+import jakarta.enterprise.context.ApplicationScoped;
 
 /**
  *
  * CRMUserAttributeDAO
  *
  */
+@ApplicationScoped
 public class CRMUserAttributeDAO implements ICRMUserAttributeDAO
 {
     private static final String SQL_QUERY_INSERT = " INSERT INTO crm_user_attribute (id_crm_user, user_attribute_key, user_attribute_value) VALUES (?,?,?) ";
@@ -57,16 +59,17 @@ public class CRMUserAttributeDAO implements ICRMUserAttributeDAO
     @Override
     public synchronized void insert( int nIdCRMUser, String strUserAttributeKey, String strUserAttributeValue, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, plugin );
+        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, plugin ) )
+        {
 
-        int nIndex = 1;
+            int nIndex = 1;
 
-        daoUtil.setInt( nIndex++, nIdCRMUser );
-        daoUtil.setString( nIndex++, strUserAttributeKey );
-        daoUtil.setString( nIndex++, strUserAttributeValue );
+            daoUtil.setInt( nIndex++, nIdCRMUser );
+            daoUtil.setString( nIndex++, strUserAttributeKey );
+            daoUtil.setString( nIndex++, strUserAttributeValue );
 
-        daoUtil.executeUpdate( );
-        daoUtil.free( );
+            daoUtil.executeUpdate( );
+        }
     }
 
     /**
@@ -75,10 +78,11 @@ public class CRMUserAttributeDAO implements ICRMUserAttributeDAO
     @Override
     public void delete( int nIdCRMUser, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE, plugin );
-        daoUtil.setInt( 1, nIdCRMUser );
-        daoUtil.executeUpdate( );
-        daoUtil.free( );
+        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE, plugin ) )
+        {
+            daoUtil.setInt( 1, nIdCRMUser );
+            daoUtil.executeUpdate( );
+        }
     }
 
     /**
@@ -88,19 +92,19 @@ public class CRMUserAttributeDAO implements ICRMUserAttributeDAO
     public Map<String, String> load( int nIdCRMUser, Plugin plugin )
     {
         Map<String, String> userAttributes = new HashMap<String, String>( );
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT, plugin );
-        daoUtil.setInt( 1, nIdCRMUser );
-        daoUtil.executeQuery( );
-
-        while ( daoUtil.next( ) )
+        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT, plugin ) )
         {
-            int nIndex = 1;
-            userAttributes.put( daoUtil.getString( nIndex++ ), daoUtil.getString( nIndex++ ) );
+            daoUtil.setInt( 1, nIdCRMUser );
+            daoUtil.executeQuery( );
+
+            while ( daoUtil.next( ) )
+            {
+                int nIndex = 1;
+                userAttributes.put( daoUtil.getString( nIndex++ ), daoUtil.getString( nIndex++ ) );
+            }
+
+            return userAttributes;
         }
-
-        daoUtil.free( );
-
-        return userAttributes;
     }
 
     /**
@@ -109,19 +113,19 @@ public class CRMUserAttributeDAO implements ICRMUserAttributeDAO
     @Override
     public int countAttributeValueInstances( String strUserAttributeValue, String strUserAttributeKey, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_COUNT_ATTRIBUTE_OCCURENCES, plugin );
-        daoUtil.setString( 1, strUserAttributeKey );
-        daoUtil.setString( 2, strUserAttributeValue );
-        daoUtil.executeQuery( );
-
-        int nNbInstances = 0;
-        if ( daoUtil.next( ) )
+        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_COUNT_ATTRIBUTE_OCCURENCES, plugin ) )
         {
-            nNbInstances = daoUtil.getInt( 1 );
+            daoUtil.setString( 1, strUserAttributeKey );
+            daoUtil.setString( 2, strUserAttributeValue );
+            daoUtil.executeQuery( );
+
+            int nNbInstances = 0;
+            if ( daoUtil.next( ) )
+            {
+                nNbInstances = daoUtil.getInt( 1 );
+            }
+
+            return nNbInstances;
         }
-
-        daoUtil.free( );
-
-        return nNbInstances;
     }
 }

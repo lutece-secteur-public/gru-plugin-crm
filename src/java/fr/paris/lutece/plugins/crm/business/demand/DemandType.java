@@ -38,7 +38,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Date;
 import java.util.Locale;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -477,8 +477,8 @@ public class DemandType implements AdminWorkgroupResource
         CrmUtils.addElementHtml( strXml, CRMConstants.TAG_DEMAND_TYPE_URL_DELETE, _strUrlDelete );
         CrmUtils.addElementHtml( strXml, CRMConstants.TAG_DEMAND_TYPE_DATE_BEGIN, _dateBegin != null ? DateUtil.getDateString( _dateBegin, locale ) : null );
         CrmUtils.addElementHtml( strXml, CRMConstants.TAG_DEMAND_TYPE_DATE_END, _dateEnd != null ? DateUtil.getDateString( _dateEnd, locale ) : null );
-        CrmUtils.addElementHtml( strXml, CRMConstants.TAG_DEMAND_TYPE_NEED_AUTHENTICATION, new Boolean( _bNeedAuthentication ).toString( ) );
-        CrmUtils.addElementHtml( strXml, CRMConstants.TAG_DEMAND_TYPE_NEED_VALIDATION, new Boolean( _bNeedValidation ).toString( ) );
+        CrmUtils.addElementHtml( strXml, CRMConstants.TAG_DEMAND_TYPE_NEED_AUTHENTICATION, Boolean.toString( _bNeedAuthentication ) );
+        CrmUtils.addElementHtml( strXml, CRMConstants.TAG_DEMAND_TYPE_NEED_VALIDATION, Boolean.toString( _bNeedValidation ) );
         XmlUtil.endElement( strXml, CRMConstants.TAG_DEMAND_TYPE );
         return strXml.toString( );
     }

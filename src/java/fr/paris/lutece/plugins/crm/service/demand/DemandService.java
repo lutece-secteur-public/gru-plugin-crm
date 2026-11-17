@@ -42,7 +42,6 @@ import fr.paris.lutece.plugins.crm.business.demand.DemandType;
 import fr.paris.lutece.plugins.crm.business.demand.IPaginationProperties;
 import fr.paris.lutece.plugins.crm.business.demand.PaginationFilterSortManager;
 import fr.paris.lutece.plugins.crm.service.notification.NotificationService;
-import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.util.html.IPaginator;
 import fr.paris.lutece.util.httpaccess.HttpAccessException;
@@ -58,14 +57,29 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.spi.CDI;
+import jakarta.inject.Inject;
+
 /**
  *
  * DemandService
  *
  */
+@ApplicationScoped
 public class DemandService
 {
-    private static final String BEAN_CRM_DEMANDSERVICE = "crm.demandService";
+    @Inject
+    private NotificationService _notificationService;
+
+    @Inject
+    private DemandTypeService _demandTypeService;
+
+    @Inject
+    private DemandWebService _demandWebService;
+
+    @Inject
+    private DemandStatusCRMService _demandStatusCRMService;
 
     /**
      * Constructor
@@ -78,10 +92,12 @@ public class DemandService
      * Get an instance of {@link DemandService}
      * 
      * @return an instance of {@link DemandService}
+     * @deprecated since 2.0.0, inject the bean instead of this static accessor
      */
+    @Deprecated( since = "2.0.0", forRemoval = true )
     public static DemandService getService( )
     {
-        return SpringContextService.getBean( BEAN_CRM_DEMANDSERVICE );
+        return CDI.current( ).select( DemandService.class ).get( );
     }
 
     /**
@@ -154,7 +170,7 @@ public class DemandService
     public void remove( int nIdDemand )
     {
         // Remove all notifications associated to the demand
-        NotificationService.getService( ).removeByIdDemand( nIdDemand );
+        _notificationService.removeByIdDemand( nIdDemand );
         DemandHome.remove( nIdDemand );
     }
 
@@ -170,7 +186,7 @@ public class DemandService
 
         if ( demand != null )
         {
-            DemandType demandType = DemandTypeService.getService( ).findByPrimaryKey( demand.getIdDemandType( ) );
+            DemandType demandType = _demandTypeService.findByPrimaryKey( demand.getIdDemandType( ) );
 
             if ( demandType != null )
             {
@@ -178,26 +194,24 @@ public class DemandService
                 {
                     try
                     {
-                        DemandWebService.getService( ).sendRemoveDraft( demandType.getUrlDelete( ), nIdDemand, demand.getData( ).replace( "\"", "'" ) );
+                        _demandWebService.sendRemoveDraft( demandType.getUrlDelete( ), nIdDemand, demand.getData( ).replace( "\"", "'" ) );
                         remove( nIdDemand );
                     }
                     catch( HttpAccessException e )
                     {
-                        String strError = "CRM Demand - Error connecting to '" + demandType.getUrlDelete( ) + "' : ";
-                        AppLogService.error( strError + e.getMessage( ), e );
+                        AppLogService.error( "CRM Demand - Error connecting to '{}' : {}", demandType.getUrlDelete( ), e.getMessage( ), e );
                     }
                 }
                 else
                 {
                     try
                     {
-                        DemandWebService.getService( ).sendRemoveDraft( demandType.getUrlResource( ), nIdDemand, demand.getData( ).replace( "\"", "'" ) );
+                        _demandWebService.sendRemoveDraft( demandType.getUrlResource( ), nIdDemand, demand.getData( ).replace( "\"", "'" ) );
                         remove( nIdDemand );
                     }
                     catch( HttpAccessException e )
                     {
-                        String strError = "CRM Demand - Error connecting to '" + demandType.getUrlResource( ) + "' : ";
-                        AppLogService.error( strError + e.getMessage( ), e );
+                        AppLogService.error( "CRM Demand - Error connecting to '{}' : {}", demandType.getUrlResource( ), e.getMessage( ), e );
                     }
                 }
             }
@@ -260,7 +274,7 @@ public class DemandService
     {
         Map<String, List<Demand>> map = new HashMap<String, List<Demand>>( );
 
-        for ( DemandStatusCRM statusCRM : DemandStatusCRMService.getService( ).getAllStatusCRM( locale ) )
+        for ( DemandStatusCRM statusCRM : _demandStatusCRMService.getAllStatusCRM( locale ) )
         {
             DemandFilter dFilter = new DemandFilter( );
             dFilter.setIdCRMUser( nIdCRMUser );
@@ -292,7 +306,7 @@ public class DemandService
     {
         Map<String, List<Demand>> map = new HashMap<String, List<Demand>>( );
 
-        for ( DemandStatusCRM statusCRM : DemandStatusCRMService.getService( ).getAllStatusCRM( locale ) )
+        for ( DemandStatusCRM statusCRM : _demandStatusCRMService.getAllStatusCRM( locale ) )
         {
             int nIdStatus = statusCRM.getIdStatusCRM( );
             DemandFilter filterWithSort = new DemandFilter( );

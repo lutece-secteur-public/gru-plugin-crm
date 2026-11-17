@@ -1,4 +1,5 @@
-<#if category_id_category?exists><#assign idCat=category_id_category><#else><#assign idCat=-1></#if>
+<#if category_id_category??><#assign idCat=category_id_category><#else><#assign idCat=-1></#if>
+<@input type='hidden' name='token' value='${token}' />
 <@formGroup labelFor='category_id_category' labelKey='#i18n{crm.portlet.demandType.listCategory.labelListCategory}'>
-<@select name="category_id_category" items=categories_list default_value=idCat?string  />
+<@select name='category_id_category' id='category_id_category' items=categories_list default_value=idCat?string />
 </@formGroup>

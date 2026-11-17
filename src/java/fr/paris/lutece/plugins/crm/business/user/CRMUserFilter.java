@@ -48,7 +48,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.enterprise.inject.spi.CDI;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  *
@@ -100,7 +101,7 @@ public class CRMUserFilter implements Serializable
         // LinkedHashMap to keep the FIFO behavior
         _userInfos = new HashMap<String, String>( );
 
-        for ( String strAttributeKey : CRMUserAttributesService.getService( ).getUserAttributeKeys( ) )
+        for ( String strAttributeKey : CDI.current( ).select( CRMUserAttributesService.class ).get( ).getUserAttributeKeys( ) )
         {
             String strParamValue = request.getParameter( strAttributeKey );
 
